@@ -8,7 +8,14 @@ builder.Services.AddAuthentication().AddJwtBearer(options =>
     options.TokenValidationParameters.ValidateAudience = false;
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ApiScope", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim("scope", "api1");
+    });
+});
 
 // Add services to the container.
 
@@ -20,8 +27,14 @@ app.UseHttpsRedirection();
 
 app.MapGet("/identity", (ClaimsPrincipal user) =>
 {
-   user.Claims.Select(c => new { c.Type, c.Value });
+   return user.Claims.Select(c => new { c.Type, c.Value });
 })
 .RequireAuthorization();
+
+app.MapGet("/identity/with-policy", (ClaimsPrincipal user) =>
+    {
+        return user.Claims.Select(c => new { c.Type, c.Value });
+    })
+    .RequireAuthorization("ApiScope");
 
 app.Run();
