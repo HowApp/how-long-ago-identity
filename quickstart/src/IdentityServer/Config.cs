@@ -2,6 +2,7 @@
 
 namespace IdentityServer;
 
+using Duende.IdentityServer;
 using IdentityModel;
 
 public static class Config
@@ -22,6 +23,7 @@ public static class Config
     public static IEnumerable<Client> Clients =>
         new Client[]
         {
+            // machine to machine client
             new Client
             {
                 ClientId = "client",
@@ -37,6 +39,19 @@ public static class Config
                 
                 // define list of scopes that this client cat access
                 AllowedScopes = { "api1" }
+            },
+            new Client
+            {
+                ClientId = "web",
+                ClientSecrets = { new Secret("secret".Sha256()) },
+                AllowedGrantTypes = GrantTypes.Code,
+                RedirectUris = { "https://localhost:5002/signin-oidc" },
+                PostLogoutRedirectUris = { "https://localhost:5002/signout-callback-oidc" },
+                AllowedScopes =
+                {
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile,
+                }
             }
         };
 }
