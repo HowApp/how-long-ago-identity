@@ -15,6 +15,12 @@ builder.Services.AddAuthorization(options =>
         policy.RequireAuthenticatedUser();
         policy.RequireClaim("scope", "api1");
     });
+    
+    options.AddPolicy("ApiScope2", policy =>
+    {
+        policy.RequireAuthenticatedUser();
+        policy.RequireClaim("scope", "api2");
+    });
 });
 
 // Add services to the container.
@@ -36,5 +42,11 @@ app.MapGet("/identity/with-policy", (ClaimsPrincipal user) =>
         return user.Claims.Select(c => new { c.Type, c.Value });
     })
     .RequireAuthorization("ApiScope");
+
+app.MapGet("/identity/with-policy2", (ClaimsPrincipal user) =>
+    {
+        return user.Claims.Select(c => new { c.Type, c.Value });
+    })
+    .RequireAuthorization("ApiScope2");
 
 app.Run();
