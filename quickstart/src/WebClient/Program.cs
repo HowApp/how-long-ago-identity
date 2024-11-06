@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,7 +5,7 @@ builder.Services.AddRazorPages();
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultScheme = "Cookies";
     options.DefaultChallengeScheme = "oidc";
 })
 .AddCookie("Cookies")
@@ -21,8 +19,11 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Clear();
     options.Scope.Add("openid");
     options.Scope.Add("profile");
+    options.GetClaimsFromUserInfoEndpoint = true;
     
     options.MapInboundClaims = false;
+    options.DisableTelemetry = true;
+    
     options.SaveTokens = true;
 });
 

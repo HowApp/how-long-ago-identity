@@ -3,7 +3,6 @@
 namespace IdentityServer;
 
 using Duende.IdentityServer;
-using IdentityModel;
 
 public static class Config
 {
