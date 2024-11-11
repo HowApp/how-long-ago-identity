@@ -4,13 +4,17 @@ namespace WebClient.Pages;
 
 using System.Text.Json;
 
-public class CallApiModel : PageModel
+public class CallApiModel(IHttpClientFactory httpclientFactory) : PageModel
 {
     public string Json = string.Empty;
-    
-    public async Task OnGet(IHttpClientFactory httpclientFactory)
+
+    public async Task OnGet()
     {
-        var client = httpclientFactory.CreateClient("apiclient");
+        //var tokenInfo = await HttpContext.GetUserAccessTokenAsync();
+        //var client = new HttpClient();
+        //client.SetBearerToken(tokenInfo.AccessToken!);
+
+        var client = httpclientFactory.CreateClient("apiClient");
         
         var content = await client.GetStringAsync("https://localhost:6001/identity");
         
