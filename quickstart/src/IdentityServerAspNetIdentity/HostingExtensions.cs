@@ -13,8 +13,11 @@ internal static class HostingExtensions
     {
         builder.Services.AddRazorPages();
 
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
+                               throw new ApplicationException("Database Connection string is null!");
+        
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+            options.UseNpgsql(connectionString));
 
         builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
