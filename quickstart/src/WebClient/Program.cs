@@ -17,16 +17,19 @@ builder.Services.AddAuthentication(options =>
     options.ClientId = "web";
     options.ClientSecret = "secret";
     options.ResponseType = "code";
-    
+
     options.Scope.Clear();
     options.Scope.Add("openid");
     options.Scope.Add("profile");
     options.Scope.Add("verification");
     options.Scope.Add("api1");
     options.Scope.Add("offline_access");
-    options.ClaimActions.MapJsonKey("email_verification", "email_verification");
+    options.Scope.Add("color");
+
     options.GetClaimsFromUserInfoEndpoint = true;
-    
+    options.ClaimActions.MapJsonKey("email_verification", "email_verification");
+    options.ClaimActions.MapJsonKey("favorite_color", "favorite_color");
+
     options.MapInboundClaims = false;
     options.DisableTelemetry = true;
     

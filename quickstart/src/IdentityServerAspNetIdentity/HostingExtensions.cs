@@ -7,6 +7,8 @@ using Serilog;
 
 namespace IdentityServerAspNetIdentity;
 
+using Services;
+
 internal static class HostingExtensions
 {
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
@@ -37,7 +39,8 @@ internal static class HostingExtensions
             .AddInMemoryIdentityResources(Config.IdentityResources)
             .AddInMemoryApiScopes(Config.ApiScopes)
             .AddInMemoryClients(Config.Clients)
-            .AddAspNetIdentity<ApplicationUser>();
+            .AddAspNetIdentity<ApplicationUser>()
+            .AddProfileService<CustomProfileService>();
         
         builder.Services.AddAuthentication()
             .AddGoogle(options =>

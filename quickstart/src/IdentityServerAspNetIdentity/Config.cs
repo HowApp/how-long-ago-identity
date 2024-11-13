@@ -20,7 +20,8 @@ public static class Config
                     JwtClaimTypes.Email,
                     JwtClaimTypes.EmailVerified,
                 }
-            }
+            },
+            new IdentityResource("color", new [] { "favorite_color" })
         };
 
     public static IEnumerable<ApiScope> ApiScopes =>
@@ -66,7 +67,8 @@ public static class Config
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
                     "verification",
-                    "api1"
+                    "api1",
+                    "color"
                 }
             }
         };
