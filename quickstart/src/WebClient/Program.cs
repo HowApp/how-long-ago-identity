@@ -27,7 +27,7 @@ builder.Services.AddAuthentication(options =>
     options.Scope.Add("color");
 
     options.GetClaimsFromUserInfoEndpoint = true;
-    options.ClaimActions.MapJsonKey("email_verification", "email_verification");
+    options.ClaimActions.MapJsonKey("email_verified", "email_verified");
     options.ClaimActions.MapJsonKey("favorite_color", "favorite_color");
 
     options.MapInboundClaims = false;
