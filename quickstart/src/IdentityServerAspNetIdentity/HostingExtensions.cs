@@ -36,6 +36,8 @@ internal static class HostingExtensions
 
                 // see https://docs.duendesoftware.com/identityserver/v6/fundamentals/resources/
                 options.EmitStaticAudienceClaim = true;
+                
+                // options.Authentication.CookieLifetime = TimeSpan.FromMinutes(2);
             })
             .AddInMemoryIdentityResources(Config.IdentityResources)
             .AddInMemoryApiScopes(Config.ApiScopes)
@@ -50,6 +52,10 @@ internal static class HostingExtensions
         });
         
         builder.Services.AddAuthentication()
+            .AddCookie(options =>
+            {
+                options.ExpireTimeSpan = TimeSpan.FromMinutes(20);
+            })
             .AddGoogle(options =>
             {
                 options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
