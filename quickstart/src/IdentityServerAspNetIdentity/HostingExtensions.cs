@@ -28,6 +28,7 @@ internal static class HostingExtensions
         builder.Services
             .AddIdentityServer(options =>
             {
+                // options.UserInteraction.LoginUrl = "/Account/Login"; // for default login path there is no reason to set path
                 options.Events.RaiseErrorEvents = true;
                 options.Events.RaiseInformationEvents = true;
                 options.Events.RaiseFailureEvents = true;
@@ -41,6 +42,12 @@ internal static class HostingExtensions
             .AddInMemoryClients(Config.Clients)
             .AddAspNetIdentity<ApplicationUser>()
             .AddProfileService<CustomProfileService>();
+
+        builder.Services.ConfigureApplicationCookie(options =>
+        {
+            // options in abowe AddIdentityServer() has priority on this below
+            options.LoginPath = "/Account/Login"; // // for default login path there is no reason to set path
+        });
         
         builder.Services.AddAuthentication()
             .AddGoogle(options =>
