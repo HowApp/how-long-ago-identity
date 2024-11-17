@@ -1,13 +1,13 @@
+namespace IdentityServerAspNetIdentity;
+
+using Microsoft.IdentityModel.Tokens;
+using Services;
 using Duende.IdentityServer;
-using IdentityServerAspNetIdentity.Data;
-using IdentityServerAspNetIdentity.Models;
+using Data;
+using Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
-
-namespace IdentityServerAspNetIdentity;
-
-using Services;
 
 internal static class HostingExtensions
 {
@@ -54,6 +54,23 @@ internal static class HostingExtensions
         // });
         
         builder.Services.AddAuthentication()
+        .AddOpenIdConnect("oidc", options =>
+        {
+            options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+            options.SignOutScheme = IdentityServerConstants.SignoutScheme;
+            options.SaveTokens = true;
+
+            options.Authority = "https://demo.duendesoftware.com";
+            options.ClientId = "interactive.confidential";
+            options.ClientSecret = "secret";
+            options.ResponseType = "code";
+
+            options.TokenValidationParameters = new TokenValidationParameters()
+            {
+                NameClaimType = "name",
+                RoleClaimType = "role"
+            };
+        })
         .AddGoogle(options =>
         {
             options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
