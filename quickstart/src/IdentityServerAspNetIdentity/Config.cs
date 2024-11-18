@@ -29,6 +29,7 @@ public static class Config
         {
             new ApiScope(name: "api1", displayName: "My API"),
             new ApiScope(name: "api2", displayName: "My API2"),
+            new ApiScope(IdentityServerConstants.LocalApi.ScopeName)
         };
 
     public static IEnumerable<Client> Clients =>
