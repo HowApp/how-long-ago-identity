@@ -9,6 +9,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="7.0.4" />
+		<PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.0.8" />
 
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.3" />
 
@@ -20,5 +21,9 @@
 		<PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.3" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.3" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.3" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Data\Migrations\IdentityServer\PersistedGrantDb\" />
 	</ItemGroup>
 </Project>

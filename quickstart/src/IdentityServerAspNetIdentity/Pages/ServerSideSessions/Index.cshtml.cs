@@ -59,6 +59,10 @@ namespace IdentityServerAspNetIdentity.Pages.ServerSideSessions
 
             await _sessionManagementService.RemoveSessionsAsync(new RemoveSessionsContext { 
                 SessionId = SessionId,
+                RevokeTokens = true,
+                RemoveServerSideSession = true,
+                RevokeConsents = true,
+                SendBackchannelLogoutNotification = true,
             });
             return RedirectToPage("/ServerSideSessions/Index", new { Token, DisplayNameFilter, SessionIdFilter, SubjectIdFilter, Prev });
         }
