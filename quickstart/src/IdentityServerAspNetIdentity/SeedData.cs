@@ -8,6 +8,8 @@ using Serilog;
 
 namespace IdentityServerAspNetIdentity;
 
+// to seed data run - dotnet run /seed
+// it will destroy all exist data in project database
 public class SeedData
 {
     public static void EnsureSeedData(WebApplication app)
