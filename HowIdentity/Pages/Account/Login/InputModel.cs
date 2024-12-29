@@ -1,9 +1,9 @@
 // Copyright (c) Duende Software. All rights reserved.
 // See LICENSE in the project root for license information.
 
-using System.ComponentModel.DataAnnotations;
+namespace HowIdentity.Pages.Account.Login;
 
-namespace HowIdentity.Pages.Login;
+using System.ComponentModel.DataAnnotations;
 
 public class InputModel
 {

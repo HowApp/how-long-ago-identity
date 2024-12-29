@@ -2,7 +2,7 @@
 // See LICENSE in the project root for license information.
 
 
-namespace HowIdentity.Pages.Logout;
+namespace HowIdentity.Pages.Account.Logout;
 
 public static class LogoutOptions
 {

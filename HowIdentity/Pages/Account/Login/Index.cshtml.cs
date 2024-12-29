@@ -6,14 +6,15 @@ using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using Duende.IdentityServer.Stores;
-using HowIdentity.Models;
+
+namespace HowIdentity.Pages.Account.Login;
+
+using Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-
-namespace HowIdentity.Pages.Login;
 
 [SecurityHeaders]
 [AllowAnonymous]
