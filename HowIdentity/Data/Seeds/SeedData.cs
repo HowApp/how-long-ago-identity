@@ -3,11 +3,13 @@
 using Common.Constants;
 using Serilog;
 using System.Security.Claims;
+using Common.Configurations;
 using IdentityModel;
 using Data;
 using Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 public class SeedData
 {
@@ -98,6 +100,45 @@ public class SeedData
             else
             {
                 Log.Debug("bob already exists");
+            }
+        }
+    }
+    
+    public static void EnsureSeedAdmin(WebApplication app)
+    {
+        using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
+        {
+            var userManager = scope.ServiceProvider.GetService<UserManager<HowUser>>();
+            var adminOptions = scope.ServiceProvider.GetService<IOptions<AdminCredentials>>();
+            
+            var adminCredentials = adminOptions.Value;
+            
+            var user = userManager!.FindByEmailAsync(adminCredentials.Email).Result;
+
+            if (user is null)
+            {
+                user = new HowUser
+                {
+                    FirstName = "Admin",
+                    LastName = string.Empty,
+                    UserName = adminCredentials.Name,
+                    Email = adminCredentials.Email,
+                    EmailConfirmed = true,
+                    UserRoles = new List<HowUserRole>
+                    {
+                        new ()
+                        {
+                            RoleId = AppConstants.Role.Admin.Id
+                        }
+                    }
+                };
+
+                var result = userManager!.CreateAsync(user, adminCredentials.Password).Result;
+            
+                if (!result.Succeeded)
+                {
+                    throw new Exception("Admin not created");
+                }
             }
         }
     }

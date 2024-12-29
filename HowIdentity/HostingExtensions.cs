@@ -1,5 +1,6 @@
 namespace HowIdentity;
 
+using Common.Configurations;
 using Duende.IdentityServer;
 using Data;
 using Models;
@@ -14,6 +15,13 @@ using Services;
 
 internal static class HostingExtensions
 {
+    public static WebApplicationBuilder ConfigureConfigurations(this WebApplicationBuilder builder)
+    {
+        builder.Services.Configure<AdminCredentials>(builder.Configuration.GetSection("AdminCredentials"));
+        
+        return builder;
+    }
+    
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddRazorPages();
