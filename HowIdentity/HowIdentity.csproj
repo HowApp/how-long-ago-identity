@@ -3,19 +3,30 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+        <Nullable>disable</Nullable>
+        <UserSecretsId>9c93fb5c-5ab7-45c8-a81e-e1feab91ce98</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="7.0.4"/>
+        <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="7.0.8" />
+        <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.0.8" />
 
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.3"/>
+
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
+
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="8.0.2" />
+
+        <PackageReference Include="Npgsql.NodaTime" Version="8.0.2" />
         <PackageReference Include="Serilog.AspNetCore" Version="8.0.0"/>
 
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.3"/>
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.3"/>
         <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.3"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.3"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.3"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Data\Migrations\" />
     </ItemGroup>
 </Project>

@@ -1,4 +1,5 @@
 ﻿using HowIdentity;
+using HowIdentity.Data.Seeds;
 using Serilog;
 
 Log.Logger = new LoggerConfiguration()
@@ -23,7 +24,7 @@ try
         .ConfigurePipeline();
 
     // this seeding is only for the template to bootstrap the DB and users.
-    // in production you will likely want a different approach.
+    // in, production you will likely want a different approach.
     if (args.Contains("/seed"))
     {
         Log.Information("Seeding database...");

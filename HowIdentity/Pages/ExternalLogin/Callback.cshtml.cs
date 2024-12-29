@@ -19,8 +19,8 @@ namespace HowIdentity.Pages.ExternalLogin;
 [SecurityHeaders]
 public class Callback : PageModel
 {
-    private readonly UserManager<ApplicationUser> _userManager;
-    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly UserManager<HowUser> _userManager;
+    private readonly SignInManager<HowUser> _signInManager;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly ILogger<Callback> _logger;
     private readonly IEventService _events;
@@ -29,8 +29,8 @@ public class Callback : PageModel
         IIdentityServerInteractionService interaction,
         IEventService events,
         ILogger<Callback> logger,
-        UserManager<ApplicationUser> userManager,
-        SignInManager<ApplicationUser> signInManager)
+        UserManager<HowUser> userManager,
+        SignInManager<HowUser> signInManager)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -97,7 +97,7 @@ public class Callback : PageModel
 
         // check if external login is in the context of an OIDC request
         var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-        await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.Id, user.UserName, true,
+        await _events.RaiseAsync(new UserLoginSuccessEvent(provider, providerUserId, user.Id.ToString(), user.UserName, true,
             context?.Client.ClientId));
         Telemetry.Metrics.UserLogin(context?.Client.ClientId, provider!);
 
@@ -116,14 +116,14 @@ public class Callback : PageModel
 
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Performance",
         "CA1851:Possible multiple enumerations of 'IEnumerable' collection", Justification = "<Pending>")]
-    private async Task<ApplicationUser> AutoProvisionUserAsync(string provider, string providerUserId,
+    private async Task<HowUser> AutoProvisionUserAsync(string provider, string providerUserId,
         IEnumerable<Claim> claims)
     {
         var sub = Guid.NewGuid().ToString();
 
-        var user = new ApplicationUser
+        var user = new HowUser
         {
-            Id = sub,
+            // Id = sub,
             UserName = sub, // don't need a username, since the user will be using an external provider to login
         };
 

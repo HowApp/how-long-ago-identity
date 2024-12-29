@@ -1,12 +1,13 @@
-﻿using System.Security.Claims;
+﻿namespace HowIdentity.Data.Seeds;
+
+using Common.Constants;
+using Serilog;
+using System.Security.Claims;
 using IdentityModel;
-using HowIdentity.Data;
-using HowIdentity.Models;
+using Data;
+using Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Serilog;
-
-namespace HowIdentity;
 
 public class SeedData
 {
@@ -17,11 +18,11 @@ public class SeedData
             var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
             context.Database.Migrate();
 
-            var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            var alice = userMgr.FindByNameAsync("alice").Result;
+            var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<HowUser>>();
+            var alice = userMgr.FindByEmailAsync("AliceSmith@email.com").Result;
             if (alice == null)
             {
-                alice = new ApplicationUser
+                alice = new HowUser
                 {
                     UserName = "alice",
                     Email = "AliceSmith@email.com",
@@ -44,7 +45,13 @@ public class SeedData
                 {
                     throw new Exception(result.Errors.First().Description);
                 }
-
+                
+                var addRole = userMgr.AddToRoleAsync(alice, AppConstants.Role.User.Name).Result;
+                if (!addRole.Succeeded)
+                {
+                    throw new Exception(addRole.Errors.First().Description);
+                }
+                
                 Log.Debug("alice created");
             }
             else
@@ -52,14 +59,14 @@ public class SeedData
                 Log.Debug("alice already exists");
             }
 
-            var bob = userMgr.FindByNameAsync("bob").Result;
+            var bob = userMgr.FindByEmailAsync("BobSmith@email.com").Result;
             if (bob == null)
             {
-                bob = new ApplicationUser
+                bob = new HowUser
                 {
                     UserName = "bob",
                     Email = "BobSmith@email.com",
-                    EmailConfirmed = true
+                    EmailConfirmed = true,
                 };
                 var result = userMgr.CreateAsync(bob, "Pass123$").Result;
                 if (!result.Succeeded)
@@ -78,6 +85,12 @@ public class SeedData
                 if (!result.Succeeded)
                 {
                     throw new Exception(result.Errors.First().Description);
+                }
+                
+                var addRole = userMgr.AddToRoleAsync(bob, AppConstants.Role.User.Name).Result;
+                if (!addRole.Succeeded)
+                {
+                    throw new Exception(addRole.Errors.First().Description);
                 }
 
                 Log.Debug("bob created");

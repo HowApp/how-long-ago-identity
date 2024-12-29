@@ -18,13 +18,13 @@ namespace HowIdentity.Pages.Logout;
 [AllowAnonymous]
 public class Index : PageModel
 {
-    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly SignInManager<HowUser> _signInManager;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly IEventService _events;
 
     [BindProperty] public string? LogoutId { get; set; }
 
-    public Index(SignInManager<ApplicationUser> signInManager, IIdentityServerInteractionService interaction,
+    public Index(SignInManager<HowUser> signInManager, IIdentityServerInteractionService interaction,
         IEventService events)
     {
         _signInManager = signInManager;
