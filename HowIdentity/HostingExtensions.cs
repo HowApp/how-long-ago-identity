@@ -15,16 +15,11 @@ using Services;
 
 internal static class HostingExtensions
 {
-    public static WebApplicationBuilder ConfigureConfigurations(this WebApplicationBuilder builder)
-    {
-        builder.Services.Configure<AdminCredentials>(builder.Configuration.GetSection("AdminCredentials"));
-        
-        return builder;
-    }
-    
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddRazorPages();
+        
+        builder.Services.ConfigureConfigurations(builder.Configuration);
 
         var migrationAssembly = typeof(Program).Assembly.GetName().Name;
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
@@ -177,5 +172,12 @@ internal static class HostingExtensions
                 context.SaveChanges();
             }
         }
+    }
+    
+    private static IServiceCollection ConfigureConfigurations(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<AdminCredentials>(configuration.GetSection("AdminCredentials"));
+        
+        return services;
     }
 }
