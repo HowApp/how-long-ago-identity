@@ -1,6 +1,7 @@
 namespace HowIdentity;
 
 using Common.Configurations;
+using Common.Constants;
 using Duende.IdentityServer;
 using Data;
 using Models;
@@ -15,6 +16,24 @@ using Services;
 
 internal static class HostingExtensions
 {
+    public static WebApplicationBuilder ConfigureCors(this WebApplicationBuilder builder)
+    {
+        var baseAppSettings = new BaseApplicationSettings();
+        builder.Configuration.Bind(nameof(BaseApplicationSettings), baseAppSettings);
+        
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy(AppConstants.CorsPolicy, appBuilder =>
+            {
+                appBuilder.WithOrigins(baseAppSettings.AllowedOrigins)
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials();
+            });
+        });
+        
+        return builder;
+    }
     public static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
         builder.Services.AddRazorPages();
@@ -122,6 +141,8 @@ internal static class HostingExtensions
             app.UseDeveloperExceptionPage();
         }
         
+        app.UseCors(AppConstants.CorsPolicy);
+
         InitializeDatabase(app); // TODO run only one to init database
 
         app.UseStaticFiles();

@@ -45,6 +45,26 @@ public static class Config
                     IdentityServerConstants.StandardScopes.Profile, 
                     "web"
                 }
+            },
+            
+            //test 
+            new Client
+            {
+                ClientId = "BlazorTest",
+                RequireClientSecret = false,
+                RequirePkce = true,
+
+                AllowedGrantTypes = GrantTypes.Code,
+
+                RedirectUris = { "https://localhost:7015/authentication/login-callback" },
+                PostLogoutRedirectUris = { "https://localhost:7015/authentication/logout-callback" },
+
+                AllowOfflineAccess = true,
+                AllowedScopes = { 
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile, 
+                    "web"
+                }
             }
         };
 }

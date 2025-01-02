@@ -25,6 +25,7 @@ public static class Program
                 .ReadFrom.Configuration(ctx.Configuration));
 
             var app = builder
+                .ConfigureCors()
                 .ConfigureServices()
                 .ConfigurePipeline();
 
