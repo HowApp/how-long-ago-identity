@@ -31,19 +31,18 @@ public static class Config
             new Client
             {
                 ClientId = "how-web-app",
-                ClientSecrets = { new Secret("49C1A7E1-0C79-4A89-A3D6-A37998FB86B0".Sha256()) },
+                RequireClientSecret = false,
+                RequirePkce = true,
 
                 AllowedGrantTypes = GrantTypes.Code,
 
-                RedirectUris = { "https://localhost:7560/signin-oidc" },
-                FrontChannelLogoutUri = "https://localhost:7560/signout-oidc",
-                PostLogoutRedirectUris = { "https://localhost:7560/signout-callback-oidc" },
+                RedirectUris = { "https://localhost:7560/authentication/login-callback" },
+                PostLogoutRedirectUris = { "https://localhost:7560/authentication/logout-callback" },
 
                 AllowOfflineAccess = true,
                 AllowedScopes = { 
                     IdentityServerConstants.StandardScopes.OpenId,
-                    IdentityServerConstants.StandardScopes.Profile, 
-                    "web"
+                    IdentityServerConstants.StandardScopes.Profile
                 }
             },
             
@@ -62,8 +61,7 @@ public static class Config
                 AllowOfflineAccess = true,
                 AllowedScopes = { 
                     IdentityServerConstants.StandardScopes.OpenId,
-                    IdentityServerConstants.StandardScopes.Profile, 
-                    "web"
+                    IdentityServerConstants.StandardScopes.Profile
                 }
             }
         };

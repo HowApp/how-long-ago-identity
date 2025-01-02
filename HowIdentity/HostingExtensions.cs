@@ -140,13 +140,14 @@ internal static class HostingExtensions
         {
             app.UseDeveloperExceptionPage();
         }
-        
-        app.UseCors(AppConstants.CorsPolicy);
 
         InitializeDatabase(app); // TODO run only one to init database
 
         app.UseStaticFiles();
         app.UseRouting();
+
+        app.UseCors(AppConstants.CorsPolicy);
+
         app.UseIdentityServer();
         app.UseAuthorization();
 
@@ -194,7 +195,7 @@ internal static class HostingExtensions
             }
         }
     }
-    
+
     private static IServiceCollection ConfigureConfigurations(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<AdminCredentials>(configuration.GetSection("AdminCredentials"));
