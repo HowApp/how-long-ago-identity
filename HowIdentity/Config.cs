@@ -75,6 +75,21 @@ public static class Config
                     IdentityServerConstants.StandardScopes.Profile,
                     "scope.api-test"
                 }
+            },
+            
+            // introspection api testing 
+            new Client
+            {
+                ClientId = "client.api-test",
+
+                AllowedGrantTypes = GrantTypes.ClientCredentials,
+                ClientSecrets = { new Secret("secret.api-test".Sha256()) },
+
+                AccessTokenType = AccessTokenType.Reference,
+                
+                AllowedScopes = { 
+                    "scope.api-test"
+                }
             }
         };
 }
