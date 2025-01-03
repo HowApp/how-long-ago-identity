@@ -21,7 +21,18 @@ public static class Config
     public static IEnumerable<ApiScope> ApiScopes =>
         new ApiScope[]
         {
-            new ApiScope("web")
+            new ApiScope("scope.web", displayName: "Web Client"),
+            new ApiScope("scope.api-test", displayName:"Test API")
+        };
+
+    public static IEnumerable<ApiResource> ApiResources =>
+        new ApiResource[]
+        {
+            new ApiResource("api-resource.api-test", "API test resource")
+            {
+                Scopes = { "scope.api-test" },
+                ApiSecrets = { new Secret("secrets.api-test".Sha256()) }
+            }
         };
 
     public static IEnumerable<Client> Clients =>
@@ -46,7 +57,7 @@ public static class Config
                 }
             },
             
-            //test 
+            // blazor standalone web app testing
             new Client
             {
                 ClientId = "BlazorTest",
@@ -61,7 +72,8 @@ public static class Config
                 AllowOfflineAccess = true,
                 AllowedScopes = { 
                     IdentityServerConstants.StandardScopes.OpenId,
-                    IdentityServerConstants.StandardScopes.Profile
+                    IdentityServerConstants.StandardScopes.Profile,
+                    "scope.api-test"
                 }
             }
         };
