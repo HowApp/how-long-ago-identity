@@ -1,6 +1,6 @@
 @page "/call-api"
 @using System.Text.Json
-@inject HttpClient HttpClient
+@inject IHttpClientFactory HttpClientFactory
 
 <h3>CallApi</h3>
 
@@ -16,7 +16,8 @@
     {
         try
         {
-            var content = await HttpClient.GetStringAsync("https://localhost:7088/weatherforecast");
+            var client = HttpClientFactory.CreateClient("api-test-client.authorized");
+            var content = await client.GetStringAsync("https://localhost:7088/weatherforecast");
         
             var parse = JsonDocument.Parse(content);
             var formatter = JsonSerializer.Serialize(parse, new JsonSerializerOptions{ WriteIndented = true });
