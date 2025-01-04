@@ -1,4 +1,5 @@
 using APITest;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -22,7 +23,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("API-cors", appBuilder =>
     {
-        appBuilder.WithOrigins(new[] {"https://localhost:7088", "http://localhost:5024"})
+        appBuilder.WithOrigins(new[] {"https://localhost:7015", "http://localhost:5024"})
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
@@ -30,12 +31,12 @@ builder.Services.AddCors(options =>
 });
 
 // Add services to the container.
-builder.Services.AddAuthentication("token")
-    .AddJwtBearer("token", options =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
     {
         // base-address of identityserver
         options.Authority = "https://localhost:5001";
-        options.Audience = "api-resource.api-test";
+        options.Audience = "https://localhost:5001/resources";
         
         options.TokenValidationParameters.ValidateAudience = true;
         
