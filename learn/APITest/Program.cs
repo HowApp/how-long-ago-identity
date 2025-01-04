@@ -15,8 +15,21 @@ Log.Logger = new LoggerConfiguration()
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddSerilog();
+builder.Services.AddControllers();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("API-cors", appBuilder =>
+    {
+        appBuilder.WithOrigins(new[] {"https://localhost:7088", "http://localhost:5024"})
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+    });
+});
+
+// Add services to the container.
 builder.Services.AddAuthentication("token")
     .AddJwtBearer("token", options =>
     {
@@ -24,7 +37,7 @@ builder.Services.AddAuthentication("token")
         options.Authority = "https://localhost:5001";
         options.Audience = "api-resource.api-test";
         
-        options.TokenValidationParameters.ValidateAudience = false;
+        options.TokenValidationParameters.ValidateAudience = true;
         
         // it's recommended to check the type header to avoid "JWT confusion" attacks
         options.TokenValidationParameters.ValidTypes = new[] { "at+jwt" };
@@ -43,35 +56,14 @@ builder.Services.AddAuthentication("token")
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-
+app.UseHttpsRedirection();
 app.UseRouting();
+
+app.UseCors("API-cors");
+
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHttpsRedirection();
 
 app.MapControllers().RequireAuthorization();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-});
-
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}

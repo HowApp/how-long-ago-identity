@@ -1,0 +1,32 @@
+@page "/call-api"
+@using System.Text.Json
+@inject HttpClient HttpClient
+
+<h3>CallApi</h3>
+
+<button @onclick="CallApiAsync">CallAPI</button>
+
+<pre>@Json</pre>
+
+
+@code {
+    private string Json = string.Empty;
+
+    private async Task CallApiAsync()
+    {
+        try
+        {
+            var content = await HttpClient.GetStringAsync("https://localhost:7088/weatherforecast");
+        
+            var parse = JsonDocument.Parse(content);
+            var formatter = JsonSerializer.Serialize(parse, new JsonSerializerOptions{ WriteIndented = true });
+        
+            Json = formatter;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            Json = $"some error, look in console- {e.Message}";
+        }
+    }
+}
