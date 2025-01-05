@@ -33,6 +33,7 @@ builder.Services.AddOidcAuthentication(options =>
     // Configure your authentication provider options here.
     // For more information, see https://aka.ms/blazor-standalone-auth
     builder.Configuration.Bind("oidc", options.ProviderOptions);
+    options.UserOptions.RoleClaim = "role";
 });
 
 await builder.Build().RunAsync();

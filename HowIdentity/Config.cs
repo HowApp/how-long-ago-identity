@@ -13,8 +13,10 @@ public static class Config
             new IdentityResources.Profile(),
             new IdentityResource()
             {
-                Name = "role",
-                UserClaims = { JwtClaimTypes.Role}
+                Name = "roles",
+                DisplayName = "User Roles",
+                UserClaims = { JwtClaimTypes.Role },
+                Required = true
             }
         };
 
@@ -31,7 +33,11 @@ public static class Config
             // name of api resource must correspond to ClientId from api
             new ApiResource("resource.api-test", "API test resource")
             {
-                Scopes = { "scope.api-test" },
+                Scopes =
+                {
+                    "scope.api-test",
+                },
+                UserClaims = { JwtClaimTypes.Role },
                 ApiSecrets = { new Secret("secret.api-test".Sha256()) }
             }
         };
@@ -77,8 +83,11 @@ public static class Config
                 AllowedScopes = { 
                     IdentityServerConstants.StandardScopes.OpenId,
                     IdentityServerConstants.StandardScopes.Profile,
-                    "scope.api-test"
-                }
+                    "scope.api-test",
+                    "roles"
+                },
+                
+                AlwaysIncludeUserClaimsInIdToken = true
             }
         };
 }

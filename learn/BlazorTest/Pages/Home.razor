@@ -9,3 +9,14 @@
 </div>
 
 Welcome to your new app.
+
+<AuthorizeView>
+    <h2>Claims</h2>
+    <dl>
+        @foreach (var claim in context.User.Claims)
+        {
+            <dt>@claim.Type</dt>
+            <dd>@claim.Value</dd>
+        }
+    </dl>
+</AuthorizeView>

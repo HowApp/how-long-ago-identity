@@ -3,6 +3,7 @@
 using System.Security.Claims;
 using Duende.IdentityServer.AspNetIdentity;
 using Duende.IdentityServer.Models;
+using IdentityModel;
 using Microsoft.AspNetCore.Identity;
 using Models;
 
@@ -18,13 +19,20 @@ public class CustomProfileService : ProfileService<HowUser>
     protected override async Task GetProfileDataAsync(ProfileDataRequestContext context, HowUser user)
     {
         var principal = await GetUserClaimsAsync(user);
-        var id = (ClaimsIdentity)principal.Identity;
+        var id = (ClaimsIdentity)principal.Identity?? new ClaimsIdentity();
 
-        // if (!string.IsNullOrEmpty(user.FavoriteColor))
-        // {
-        //     id.AddClaim(new Claim("favorite_color", user.FavoriteColor));
-        // }
-        
+        if (user.UserRoles is not null)
+        {
+            var userRoles = user.UserRoles
+                .Select(r => r.Role.Name)
+                .Where(r => !string.IsNullOrWhiteSpace(r))
+                .Distinct();
+
+            foreach (var role in userRoles)
+            {
+                id.AddClaim(new Claim(JwtClaimTypes.Role, role));
+            }
+        }
         context.AddRequestedClaims(principal.Claims);
     }
 }

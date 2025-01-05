@@ -1,5 +1,6 @@
 namespace APITest.Controllers;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 public class TestController : ControllerBase
@@ -26,6 +27,7 @@ public class TestController : ControllerBase
     
     [HttpGet]
     [Route("/claim-info")]
+    [Authorize(Roles = "User")]
     public ActionResult GetClaimInfo()
     {
         var result =  User.Claims.Select(c => new { c.Type, c.Value });

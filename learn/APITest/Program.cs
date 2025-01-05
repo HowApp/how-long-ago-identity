@@ -42,6 +42,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         
         // it's recommended to check the type header to avoid "JWT confusion" attacks
         options.TokenValidationParameters.ValidTypes = new[] { "at+jwt" };
+        options.MapInboundClaims = false;
         
         // if token does not contain a dot, it is a reference token
         options.ForwardDefaultSelector = Selector.ForwardReferenceToken("introspection");
@@ -52,6 +53,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         
         options.ClientId = "resource.api-test";
         options.ClientSecret = "secret.api-test";
+        options.RoleClaimType = "role";
     });
 
 var app = builder.Build();
