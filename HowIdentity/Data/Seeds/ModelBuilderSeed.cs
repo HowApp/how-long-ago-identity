@@ -23,6 +23,13 @@ public static class ModelBuilderSeed
                 Name = AppConstants.Role.Admin.Name,
                 NormalizedName = AppConstants.Role.Admin.Name.ToUpper(),
                 ConcurrencyStamp = "8b6258e2-ee7a-49b8-95e6-e34qw5rqd484"
+            },
+            new ()
+            {
+                Id = AppConstants.Role.SuperAdmin.Id,
+                Name = AppConstants.Role.SuperAdmin.Name,
+                NormalizedName = AppConstants.Role.SuperAdmin.Name.ToUpper(),
+                ConcurrencyStamp = "8z2358e2-ee7a-49b8-95e6-e34qw5rqd484"
             }
         };
 

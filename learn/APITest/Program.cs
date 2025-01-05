@@ -49,8 +49,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddOAuth2Introspection("introspection", options =>
     {
         options.Authority = "https://localhost:5001";
-
-        options.ClientId = "client.api-test";
+        
+        options.ClientId = "resource.api-test";
         options.ClientSecret = "secret.api-test";
     });
 

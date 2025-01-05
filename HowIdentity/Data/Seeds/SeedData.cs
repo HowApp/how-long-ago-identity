@@ -119,7 +119,7 @@ public class SeedData
             {
                 user = new HowUser
                 {
-                    FirstName = "Admin",
+                    FirstName = "SuperAdmin",
                     LastName = string.Empty,
                     UserName = adminCredentials.Name,
                     Email = adminCredentials.Email,
@@ -128,7 +128,7 @@ public class SeedData
                     {
                         new ()
                         {
-                            RoleId = AppConstants.Role.Admin.Id
+                            RoleId = AppConstants.Role.SuperAdmin.Id
                         }
                     }
                 };
@@ -137,7 +137,7 @@ public class SeedData
             
                 if (!result.Succeeded)
                 {
-                    throw new Exception("Admin not created");
+                    throw new Exception("Super Admin not created");
                 }
             }
         }

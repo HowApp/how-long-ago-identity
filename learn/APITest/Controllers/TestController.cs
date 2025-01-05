@@ -4,24 +4,32 @@ using Microsoft.AspNetCore.Mvc;
 
 public class TestController : ControllerBase
 {
-    private string[] summaries = new[]
+    private string[] _summaries = new[]
     {
         "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
     };
     
     [HttpGet]
     [Route("/weatherforecast")]
-    public ActionResult Get()
+    public ActionResult GetForecast()
     {
         var forecast =  Enumerable.Range(1, 5).Select(index =>
                 new WeatherForecast
                 (
                     DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
                     Random.Shared.Next(-20, 55),
-                    summaries[Random.Shared.Next(summaries.Length)]
+                    _summaries[Random.Shared.Next(_summaries.Length)]
                 ))
             .ToArray();
         return new JsonResult(forecast);
+    }
+    
+    [HttpGet]
+    [Route("/claim-info")]
+    public ActionResult GetClaimInfo()
+    {
+        var result =  User.Claims.Select(c => new { c.Type, c.Value });
+        return new JsonResult(result);
     }
 }
 

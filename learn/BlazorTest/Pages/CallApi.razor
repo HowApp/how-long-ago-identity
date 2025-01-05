@@ -4,15 +4,17 @@
 
 <h3>CallApi</h3>
 
-<button @onclick="CallApiAsync">CallAPI</button>
+<button @onclick="CallApiForecastAsync">CallAPI Forecast</button>
+<pre>@JsonForecast</pre>
 
-<pre>@Json</pre>
-
+<button @onclick="CallApiClaimInfoAsync">CallAPI Claim info</button>
+<pre>@JsonClaimInfo</pre>
 
 @code {
-    private string Json = string.Empty;
+    private string JsonForecast = string.Empty;
+    private string JsonClaimInfo = string.Empty;
 
-    private async Task CallApiAsync()
+    private async Task CallApiForecastAsync()
     {
         try
         {
@@ -22,12 +24,31 @@
             var parse = JsonDocument.Parse(content);
             var formatter = JsonSerializer.Serialize(parse, new JsonSerializerOptions{ WriteIndented = true });
         
-            Json = formatter;
+            JsonForecast = formatter;
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
-            Json = $"some error, look in console- {e.Message}";
+            JsonForecast = $"some error, look in console- {e.Message}";
+        }
+    }
+    
+    private async Task CallApiClaimInfoAsync()
+    {
+        try
+        {
+            var client = HttpClientFactory.CreateClient("api-test-client.authorized");
+            var content = await client.GetStringAsync("https://localhost:7088/claim-info");
+        
+            var parse = JsonDocument.Parse(content);
+            var formatter = JsonSerializer.Serialize(parse, new JsonSerializerOptions{ WriteIndented = true });
+        
+            JsonClaimInfo = formatter;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            JsonClaimInfo = $"some error, look in console- {e.Message}";
         }
     }
 }

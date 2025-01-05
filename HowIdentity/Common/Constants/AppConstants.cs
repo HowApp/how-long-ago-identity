@@ -2,7 +2,7 @@ namespace HowIdentity.Common.Constants;
 
 public static class AppConstants
 {
-    public const string CorsPolicy = "HowApplicationCors";
+    public const string CorsPolicy = "HowIdentityCors";
     public struct Role
     {
         public struct User
@@ -16,10 +16,11 @@ public static class AppConstants
             public const int Id = 2;
             public const string Name = "Admin";
         }
-    }
-
-    public static class Images
-    {
-        public const int ThumbnailResolution = 340;
+        
+        public struct SuperAdmin
+        {
+            public const int Id = 3;
+            public const string Name = "SuperAdmin";
+        }
     }
 }

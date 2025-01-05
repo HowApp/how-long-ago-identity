@@ -7,8 +7,6 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-var host = builder.HostEnvironment.BaseAddress;
-
 builder.Services.AddHttpClient("api-test-client.authorized", client => 
     client.BaseAddress = new Uri("https://localhost:7088"))
     .AddHttpMessageHandler(httpBuilder =>

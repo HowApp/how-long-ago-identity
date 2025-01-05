@@ -19,7 +19,7 @@ namespace HowIdentity.Data.Migrations
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:IdentitySequenceOptions", "'3', '1', '', '', 'False', '1'")
+                        .Annotation("Npgsql:IdentitySequenceOptions", "'4', '1', '', '', 'False', '1'")
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     normalized_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -170,7 +170,8 @@ namespace HowIdentity.Data.Migrations
                 values: new object[,]
                 {
                     { 1, "88d484e2-ee7a-49b8-95e6-e34qw5rqb625", "User", "USER" },
-                    { 2, "8b6258e2-ee7a-49b8-95e6-e34qw5rqd484", "Admin", "ADMIN" }
+                    { 2, "8b6258e2-ee7a-49b8-95e6-e34qw5rqd484", "Admin", "ADMIN" },
+                    { 3, "8z2358e2-ee7a-49b8-95e6-e34qw5rqd484", "SuperAdmin", "SUPERADMIN" }
                 });
 
             migrationBuilder.CreateIndex(

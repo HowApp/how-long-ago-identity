@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HowIdentity.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241229180803_InitialIdentityServerDbMigration")]
+    [Migration("20250105121736_InitialIdentityServerDbMigration")]
     partial class InitialIdentityServerDbMigration
     {
         /// <inheritdoc />
@@ -33,7 +33,7 @@ namespace HowIdentity.Data.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 3L, null, null, null, null, null);
+                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 4L, null, null, null, null, null);
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
@@ -73,6 +73,13 @@ namespace HowIdentity.Data.Migrations
                             ConcurrencyStamp = "8b6258e2-ee7a-49b8-95e6-e34qw5rqd484",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ConcurrencyStamp = "8z2358e2-ee7a-49b8-95e6-e34qw5rqd484",
+                            Name = "SuperAdmin",
+                            NormalizedName = "SUPERADMIN"
                         });
                 });
 
