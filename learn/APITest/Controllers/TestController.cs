@@ -26,9 +26,27 @@ public class TestController : ControllerBase
     }
     
     [HttpGet]
-    [Route("/claim-info")]
+    [Route("/claim-user-info")]
     [Authorize(Roles = "User")]
-    public ActionResult GetClaimInfo()
+    public ActionResult GetClaimUserInfo()
+    {
+        var result =  User.Claims.Select(c => new { c.Type, c.Value });
+        return new JsonResult(result);
+    }
+    
+    [HttpGet]
+    [Route("/claim-admin-info")]
+    [Authorize(Roles = "User")]
+    public ActionResult GetClaimAdminInfo()
+    {
+        var result =  User.Claims.Select(c => new { c.Type, c.Value });
+        return new JsonResult(result);
+    }
+    
+    [HttpGet]
+    [Route("/claim-super-admin-info")]
+    [Authorize(Roles = "User")]
+    public ActionResult GetClaimSuperAdminInfo()
     {
         var result =  User.Claims.Select(c => new { c.Type, c.Value });
         return new JsonResult(result);
