@@ -36,7 +36,7 @@ public class TestController : ControllerBase
     
     [HttpGet]
     [Route("/claim-admin-info")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "Admin")]
     public ActionResult GetClaimAdminInfo()
     {
         var result =  User.Claims.Select(c => new { c.Type, c.Value });
@@ -45,7 +45,7 @@ public class TestController : ControllerBase
     
     [HttpGet]
     [Route("/claim-super-admin-info")]
-    [Authorize(Roles = "User")]
+    [Authorize(Roles = "SuperAdmin")]
     public ActionResult GetClaimSuperAdminInfo()
     {
         var result =  User.Claims.Select(c => new { c.Type, c.Value });
