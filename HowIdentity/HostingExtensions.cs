@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Mappers;
+using Duende.IdentityServer.ResponseHandling;
+using Duende.IdentityServer.Validation;
 using IdentityModel;
 using Microsoft.IdentityModel.Tokens;
 using Services;
@@ -90,6 +92,9 @@ internal static class HostingExtensions
             .AddAspNetIdentity<HowUser>()
             .AddProfileService<CustomProfileService>()
             .AddServerSideSessions();
+
+        builder.Services.AddScoped<IAuthorizeInteractionResponseGenerator, CreateAuthorizeInteractionResponseGenerator>();
+        builder.Services.AddScoped<ICustomAuthorizeRequestValidator, CreateCustomAuthorizeRequestValidator>();
 
         builder.Services.AddAuthentication()
             .AddOpenIdConnect("oidc", options =>

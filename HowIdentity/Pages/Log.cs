@@ -3,6 +3,8 @@
 
 namespace HowIdentity.Pages;
 
+using Microsoft.AspNetCore.Identity;
+
 internal static class Log
 {
     private static readonly Action<ILogger, string?, Exception?> _invalidId = LoggerMessage.Define<string?>(
@@ -57,6 +59,25 @@ internal static class Log
     {
         _noConsentMatchingRequest(logger, returnUrl, null);
     }
+
+    private static Action<ILogger, string, Exception?> _identityErrorRequest(int eventId, string error) =>
+        LoggerMessage.Define<string>(
+            LogLevel.Error,
+            eventId,
+            $"Registration Error {error}"
+            );
+
+    public static void IdentityCreateError(this ILogger logger, IEnumerable<IdentityError> errors)
+    {
+        var error = string.Join("\n", errors.Select(error => $"Code: {error.Code}, Description: {error.Description};\n"));
+        _identityErrorRequest(EventIds.CreateUserError, error);
+    }
+    
+    public static void IdentityRoleError(this ILogger logger, IEnumerable<IdentityError> errors)
+    {
+        var error = string.Join("\n", errors.Select(error => $"Code: {error.Code}, Description: {error.Description};\n"));
+        _identityErrorRequest(EventIds.AddToRoleError, error);
+    }
 }
 
 internal static class EventIds
@@ -82,4 +103,11 @@ internal static class EventIds
     private const int CibaEventsStart = UIEventsStart + 3000;
     public const int InvalidBackchannelLoginId = CibaEventsStart + 0;
     public const int NoMatchingBackchannelLoginRequest = CibaEventsStart + 1;
+    
+    //////////////////////////////
+    // Registration
+    //////////////////////////////
+    private const int RegistrationEventsStart = UIEventsStart + 4000;
+    public const int CreateUserError = RegistrationEventsStart + 0;
+    public const int AddToRoleError = CreateUserError + 1;
 }

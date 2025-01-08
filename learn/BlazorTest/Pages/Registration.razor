@@ -1,0 +1,18 @@
+@page "/registration"
+@inject NavigationManager Navigation
+
+@code {
+    protected override void OnInitialized()
+    {
+        // Redirect to IdentityServer's authorization endpoint with the prompt=create parameter
+        var registrationUrl = "https://localhost:5001/connect/authorize" +
+                              "?client_id=BlazorTest" +
+                              "&response_type=code" +
+                              "&scope=openid%20profile%20scope.api-test%20roles" +
+                              "&redirect_uri=https://localhost:7015/authentication/login-callback" +
+                              "&code_challenge=mETazwh93ngWER0w8hJyZcgSyyf4hHQ3vvZt6Wn_LSU" +
+                              "&code_challenge_method=S256" +
+                              "&prompt=none";
+        Navigation.NavigateTo(registrationUrl, forceLoad: true);
+    }
+}
