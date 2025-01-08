@@ -93,9 +93,6 @@ internal static class HostingExtensions
             .AddProfileService<CustomProfileService>()
             .AddServerSideSessions();
 
-        builder.Services.AddScoped<IAuthorizeInteractionResponseGenerator, CreateAuthorizeInteractionResponseGenerator>();
-        builder.Services.AddScoped<ICustomAuthorizeRequestValidator, CreateCustomAuthorizeRequestValidator>();
-
         builder.Services.AddAuthentication()
             .AddOpenIdConnect("oidc", options =>
             {

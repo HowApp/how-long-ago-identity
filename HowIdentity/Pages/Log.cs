@@ -60,23 +60,29 @@ internal static class Log
         _noConsentMatchingRequest(logger, returnUrl, null);
     }
 
-    private static Action<ILogger, string, Exception?> _identityErrorRequest(int eventId, string error) =>
+    private static Action<ILogger, string, Exception?> _identityErrorCreateRequest =
         LoggerMessage.Define<string>(
-            LogLevel.Error,
-            eventId,
-            $"Registration Error {error}"
+            LogLevel.Warning,
+            EventIds.CreateUserError,
+            "Registration Error: {error}"
             );
 
-    public static void IdentityCreateError(this ILogger logger, IEnumerable<IdentityError> errors)
+    public static void IdentityRegistrationError(this ILogger logger, IEnumerable<IdentityError> errors)
     {
-        var error = string.Join("\n", errors.Select(error => $"Code: {error.Code}, Description: {error.Description};\n"));
-        _identityErrorRequest(EventIds.CreateUserError, error);
+        var error = string.Join("\n", errors.Select(error => $"Code: {error.Code}, Description: {error.Description};"));
+        _identityErrorCreateRequest(logger, error, null);
     }
     
-    public static void IdentityRoleError(this ILogger logger, IEnumerable<IdentityError> errors)
+    private static Action<ILogger, string, Exception?> _registrationReturnUrlSuspiciousRequest =
+        LoggerMessage.Define<string>(
+            LogLevel.Warning,
+            EventIds.ReturnUrlSuspiciousError,
+            "Registration Error: {error}"
+        );
+
+    public static void ReturnUrlSuspiciousError(this ILogger logger, string returnUrl)
     {
-        var error = string.Join("\n", errors.Select(error => $"Code: {error.Code}, Description: {error.Description};\n"));
-        _identityErrorRequest(EventIds.AddToRoleError, error);
+        _registrationReturnUrlSuspiciousRequest(logger, returnUrl, null);
     }
 }
 
@@ -109,5 +115,5 @@ internal static class EventIds
     //////////////////////////////
     private const int RegistrationEventsStart = UIEventsStart + 4000;
     public const int CreateUserError = RegistrationEventsStart + 0;
-    public const int AddToRoleError = CreateUserError + 1;
+    public const int ReturnUrlSuspiciousError = CreateUserError + 1;
 }

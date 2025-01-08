@@ -72,10 +72,17 @@ public class Index : PageModel
             }
         }
 
-        var userExists = await _userManager.FindByNameAsync(Input.Name);
-        if (userExists != null)
+        var userNameExists = await _userManager.FindByNameAsync(Input.UserName);
+        if (userNameExists != null)
         {
             ModelState.AddModelError("Input.Username", "User with this username already exists.");
+            return Page();
+        }
+        
+        var userEmailExists = await _userManager.FindByEmailAsync(Input.Email);
+        if (userEmailExists != null)
+        {
+            ModelState.AddModelError("Input.Username", "User with this email already exists.");
             return Page();
         }
 
@@ -97,14 +104,20 @@ public class Index : PageModel
 
                 if (!addRoleResult.Succeeded)
                 {
-                    _logger.IdentityRoleError(userCreateResult.Errors);
+                    _logger.IdentityRegistrationError(addRoleResult.Errors);
                     return Redirect("~/");
                 }
             }
             else
             {
-                _logger.IdentityCreateError(userCreateResult.Errors);
-                return Redirect("~/");
+                foreach (var error in userCreateResult.Errors.Select(e => (e.Code, e.Description)))
+                {
+                    ModelState.AddModelError(error.Code, error.Description);     
+                }
+                
+                _logger.IdentityRegistrationError(userCreateResult.Errors);
+                
+                return Page();
             }
 
             // issue authentication cookie with subject ID and username
@@ -140,7 +153,7 @@ public class Index : PageModel
             else
             {
                 // user might have clicked on a malicious link - should be logged
-                throw new ArgumentException("invalid return URL");
+                _logger.ReturnUrlSuspiciousError($"Invalid return URL: {Input.ReturnUrl}");
             }
         }
 
