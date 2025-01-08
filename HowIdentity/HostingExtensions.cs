@@ -52,6 +52,27 @@ internal static class HostingExtensions
         builder.Services.AddIdentity<HowUser, HowRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddDefaultTokenProviders();
+        
+        builder.Services.Configure<IdentityOptions>(o =>
+        {
+            // Password settings.
+            o.Password.RequireDigit = true;
+            o.Password.RequireLowercase = true;
+            o.Password.RequireNonAlphanumeric = true;
+            o.Password.RequireUppercase = true;
+            o.Password.RequiredLength = 8;
+            o.Password.RequiredUniqueChars = 4;
+            
+            // Lockout settings.
+            o.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            o.Lockout.MaxFailedAccessAttempts = 5;
+            o.Lockout.AllowedForNewUsers = true;
+            
+            // User settings.
+            o.User.AllowedUserNameCharacters =
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+            o.User.RequireUniqueEmail = true;
+        });
 
         builder.Services
             .AddIdentityServer(options =>

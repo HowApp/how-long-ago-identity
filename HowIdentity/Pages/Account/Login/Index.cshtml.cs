@@ -26,6 +26,7 @@ public class Index : PageModel
     private readonly IEventService _events;
     private readonly IAuthenticationSchemeProvider _schemeProvider;
     private readonly IIdentityProviderStore _identityProviderStore;
+    private readonly ILogger<Index> _logger;
 
     public ViewModel View { get; set; } = default!;
 
@@ -37,10 +38,12 @@ public class Index : PageModel
         IIdentityProviderStore identityProviderStore,
         IEventService events,
         UserManager<HowUser> userManager,
-        SignInManager<HowUser> signInManager)
+        SignInManager<HowUser> signInManager,
+        ILogger<Index> logger)
     {
         _userManager = userManager;
         _signInManager = signInManager;
+        _logger = logger;
         _interaction = interaction;
         _schemeProvider = schemeProvider;
         _identityProviderStore = identityProviderStore;
@@ -134,8 +137,13 @@ public class Index : PageModel
                 else
                 {
                     // user might have clicked on a malicious link - should be logged
-                    throw new ArgumentException("invalid return URL");
+                    _logger.ReturnUrlSuspiciousError($"Invalid return URL: {Input.ReturnUrl}");
                 }
+            }
+
+            if (result.IsLockedOut)
+            {
+                ModelState.AddModelError(string.Empty, LoginOptions.AccountIsLockedOutErrorMessage);
             }
 
             const string error = "invalid credentials";

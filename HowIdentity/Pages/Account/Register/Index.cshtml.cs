@@ -72,20 +72,29 @@ public class Index : PageModel
             }
         }
 
-        var userNameExists = await _userManager.FindByNameAsync(Input.UserName);
-        if (userNameExists != null)
+        try
         {
-            ModelState.AddModelError("Input.Username", "User with this username already exists.");
+            var userNameExists = await _userManager.FindByNameAsync(Input.UserName);
+            if (userNameExists != null)
+            {
+                ModelState.AddModelError("Input.Username", "User with this username already exists.");
+                return Page();
+            }
+        
+            var userEmailExists = await _userManager.FindByEmailAsync(Input.Email);
+            if (userEmailExists != null)
+            {
+                ModelState.AddModelError("Input.Username", "User with this email already exists.");
+                return Page();
+            }
+        }
+        catch (Exception e)
+        {
+            ModelState.AddModelError("Internal Error", "Something went wrong. Contact the developers for help.");
+            _logger.IdentityRegistrationError(new []{ new IdentityError { Code = "User duplicates in database", Description = $"{e.Message}" } });
             return Page();
         }
         
-        var userEmailExists = await _userManager.FindByEmailAsync(Input.Email);
-        if (userEmailExists != null)
-        {
-            ModelState.AddModelError("Input.Username", "User with this email already exists.");
-            return Page();
-        }
-
         if (ModelState.IsValid)
         {
             var user = new HowUser
