@@ -9,6 +9,10 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HowIdentity.Pages.ServerSideSessions
 {
+    using Common.Constants;
+    using Microsoft.AspNetCore.Authorization;
+
+    [Authorize(Roles = AppConstants.Role.SuperAdmin.Name)]
     public class IndexModel : PageModel
     {
         private readonly ISessionManagementService? _sessionManagementService;

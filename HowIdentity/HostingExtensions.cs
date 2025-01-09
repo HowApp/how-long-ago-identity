@@ -107,6 +107,10 @@ internal static class HostingExtensions
                 options.ConfigureDbContext = b => b.UseNpgsql(
                     connectionString,
                     sql => sql.MigrationsAssembly(migrationAssembly));
+                
+                // this enables automatic token cleanup. this is optional.
+                options.EnableTokenCleanup = true;
+                options.TokenCleanupInterval = 3600; // interval in seconds (default is 3600)
             })
             .AddAspNetIdentity<HowUser>()
             .AddProfileService<CustomProfileService>()
