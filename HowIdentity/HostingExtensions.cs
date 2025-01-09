@@ -10,8 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Mappers;
-using Duende.IdentityServer.ResponseHandling;
-using Duende.IdentityServer.Validation;
 using IdentityModel;
 using Microsoft.IdentityModel.Tokens;
 using Services;
@@ -86,13 +84,13 @@ internal static class HostingExtensions
                 options.EmitStaticAudienceClaim = true;
                 
                 options.Authentication.CheckSessionCookieName = "HowIdentity.Cookie";
-                options.Authentication.CookieLifetime = TimeSpan.FromMinutes(2);
+                // options.Authentication.CookieLifetime = TimeSpan.FromMinutes(2);
 
                 options.Authentication.CoordinateClientLifetimesWithUserSession = true;
                 
                 options.ServerSideSessions.UserDisplayNameClaimType = JwtClaimTypes.Name;
                 options.ServerSideSessions.RemoveExpiredSessions = true;
-                options.ServerSideSessions.RemoveExpiredSessionsFrequency = TimeSpan.FromMinutes(30);
+                // options.ServerSideSessions.RemoveExpiredSessionsFrequency = TimeSpan.FromMinutes(30);
                 options.ServerSideSessions.ExpiredSessionsTriggerBackchannelLogout = true;
             })
             // .AddInMemoryIdentityResources(Config.IdentityResources)

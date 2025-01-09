@@ -86,8 +86,8 @@ public static class Config
                     "scope.api-test",
                     "roles"
                 },
-                
-                AlwaysIncludeUserClaimsInIdToken = true
+
+                AlwaysIncludeUserClaimsInIdToken = true,
             }
         };
 }
