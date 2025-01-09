@@ -53,7 +53,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         
         options.ClientId = "resource.api-test";
         options.ClientSecret = "secret.api-test";
-        options.RoleClaimType = "role";
     });
 
 var app = builder.Build();

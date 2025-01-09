@@ -1,28 +1,18 @@
 namespace APITest.Controllers;
 
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 public class TestController : ControllerBase
 {
-    private string[] _summaries = new[]
-    {
-        "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-    };
-    
     [HttpGet]
-    [Route("/weatherforecast")]
+    [Route("/basic")]
+    [Authorize]
     public ActionResult GetForecast()
     {
-        var forecast =  Enumerable.Range(1, 5).Select(index =>
-                new WeatherForecast
-                (
-                    DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                    Random.Shared.Next(-20, 55),
-                    _summaries[Random.Shared.Next(_summaries.Length)]
-                ))
-            .ToArray();
-        return new JsonResult(forecast);
+        var result = GetInfo();
+        return new JsonResult(result);
     }
     
     [HttpGet]
@@ -30,7 +20,7 @@ public class TestController : ControllerBase
     [Authorize(Roles = "User")]
     public ActionResult GetClaimUserInfo()
     {
-        var result =  User.Claims.Select(c => new { c.Type, c.Value });
+        var result = GetInfo();
         return new JsonResult(result);
     }
     
@@ -39,7 +29,7 @@ public class TestController : ControllerBase
     [Authorize(Roles = "Admin")]
     public ActionResult GetClaimAdminInfo()
     {
-        var result =  User.Claims.Select(c => new { c.Type, c.Value });
+        var result = GetInfo();
         return new JsonResult(result);
     }
     
@@ -48,12 +38,24 @@ public class TestController : ControllerBase
     [Authorize(Roles = "SuperAdmin")]
     public ActionResult GetClaimSuperAdminInfo()
     {
-        var result =  User.Claims.Select(c => new { c.Type, c.Value });
+        var result = GetInfo();
         return new JsonResult(result);
     }
-}
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    private dynamic GetInfo()
+    {
+        var claims =  User.Claims.Select(c => new { c.Type, c.Value });
+
+        var prop = HttpContext.AuthenticateAsync().Result.Properties!.Items
+            .Select(c => 
+                new
+                {
+                    Type = c.Key, 
+                    c.Value
+                });
+
+        var result = new {Claims = claims, Prop = prop};
+        
+        return result;
+    }
 }
