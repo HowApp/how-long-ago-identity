@@ -4,8 +4,8 @@
 
 <h3>CallApi</h3>
 
-<button @onclick="CallApiForecastAsync">CallAPI Forecast</button>
-<pre>@JsonForecast</pre>
+<button @onclick="CallApiForecastAsync">CallAPI Basic info</button>
+<pre>@JsonBasic</pre>
 
 <button @onclick="CallApiClaimUserInfoAsync">CallAPI Claim User info</button>
 <pre>@JsonClaimUserInfo</pre>
@@ -17,14 +17,14 @@
 <pre>@JsonClaimSuperAdminInfo</pre>
 
 @code {
-    private string JsonForecast = string.Empty;
+    private string JsonBasic = string.Empty;
     private string JsonClaimUserInfo = string.Empty;
     private string JsonClaimAdminInfo = string.Empty;
     private string JsonClaimSuperAdminInfo = string.Empty;
 
     private async Task CallApiForecastAsync()
     {
-        JsonForecast = await CallApiEndpoint("https://localhost:7088/weatherforecast");
+        JsonBasic = await CallApiEndpoint("https://localhost:7088/basic");
     }
     
     private async Task CallApiClaimUserInfoAsync()
