@@ -6,7 +6,7 @@ namespace HowIdentity.Pages.Account.Register;
 using Common.Constants;
 using Pages;
 using Microsoft.AspNetCore.Identity;
-using Models;
+using Entity;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;

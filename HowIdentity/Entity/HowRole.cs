@@ -1,4 +1,4 @@
-namespace HowIdentity.Models;
+namespace HowIdentity.Entity;
 
 using Microsoft.AspNetCore.Identity;
 

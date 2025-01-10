@@ -9,7 +9,7 @@ using Duende.IdentityServer.Stores;
 
 namespace HowIdentity.Pages.Account.Login;
 
-using Models;
+using Entity;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;

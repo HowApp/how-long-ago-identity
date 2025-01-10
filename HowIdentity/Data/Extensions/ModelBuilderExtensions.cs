@@ -1,7 +1,7 @@
 namespace HowIdentity.Data.Extensions;
 
 using System.Globalization;
-using Models;
+using Entity;
 using Microsoft.EntityFrameworkCore;
 using Npgsql.NameTranslation;
 using Seeds;

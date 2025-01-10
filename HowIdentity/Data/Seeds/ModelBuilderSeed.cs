@@ -1,7 +1,7 @@
 namespace HowIdentity.Data.Seeds;
 
 using Common.Constants;
-using Models;
+using Entity;
 using Microsoft.EntityFrameworkCore;
 
 public static class ModelBuilderSeed

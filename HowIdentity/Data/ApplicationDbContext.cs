@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Models;
+using Entity;
 using Extensions;
 
 public class ApplicationDbContext : IdentityDbContext<

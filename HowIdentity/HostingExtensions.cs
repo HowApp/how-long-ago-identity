@@ -4,13 +4,14 @@ using Common.Configurations;
 using Common.Constants;
 using Duende.IdentityServer;
 using Data;
-using Models;
+using Entity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Mappers;
 using IdentityModel;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
 using Services;
 
@@ -144,15 +145,8 @@ internal static class HostingExtensions
                 options.ClientId = "copy client ID from Google here";
                 options.ClientSecret = "copy client secret from Google here";
             });
-
-        builder.Services.AddAuthorization(options => 
-        {
-            options.AddPolicy(IdentityServerConstants.LocalApi.PolicyName, policy =>
-            {
-                // policy.AddAuthenticationSchemes(IdentityServerConstants.LocalApi.AuthenticationScheme);
-                policy.RequireAuthenticatedUser();
-            });
-        });
+        
+        builder.AddSuperAdminFeature();
         
         return builder.Build();
     }
@@ -235,5 +229,22 @@ internal static class HostingExtensions
         services.Configure<AdminCredentials>(configuration.GetSection("AdminCredentials"));
         
         return services;
+    }
+
+    private static void AddSuperAdminFeature(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddAuthorization(options => 
+        {
+            options.AddPolicy("super-admin", policy =>
+            {
+                policy.RequireRole(AppConstants.Role.SuperAdmin.Name);
+                policy.RequireAuthenticatedUser();
+            });
+        });
+
+        builder.Services.Configure<RazorPagesOptions>(options =>
+        {
+            options.Conventions.AuthorizeFolder("/SuperAdmin", "super-admin");
+        });
     }
 }

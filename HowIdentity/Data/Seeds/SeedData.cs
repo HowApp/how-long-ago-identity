@@ -6,7 +6,7 @@ using System.Security.Claims;
 using Common.Configurations;
 using IdentityModel;
 using Data;
-using Models;
+using Entity;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;

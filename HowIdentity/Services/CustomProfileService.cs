@@ -5,7 +5,7 @@ using Duende.IdentityServer.AspNetIdentity;
 using Duende.IdentityServer.Models;
 using IdentityModel;
 using Microsoft.AspNetCore.Identity;
-using Models;
+using Entity;
 
 public class CustomProfileService : ProfileService<HowUser>
 {
