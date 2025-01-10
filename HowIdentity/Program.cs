@@ -26,6 +26,8 @@ public static class Program
 
             var app = builder
                 .ConfigureCors()
+                .ConfigureDataAccess()
+                .ConfigureCustomService()
                 .ConfigureServices()
                 .ConfigurePipeline();
 

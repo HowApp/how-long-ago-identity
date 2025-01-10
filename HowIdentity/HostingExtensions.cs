@@ -14,6 +14,7 @@ using IdentityModel;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
 using Services;
+using Services.SuperAdmin;
 
 internal static class HostingExtensions
 {
@@ -174,6 +175,23 @@ internal static class HostingExtensions
             .RequireAuthorization();
 
         return app;
+    }
+
+    public static WebApplicationBuilder ConfigureDataAccess(this WebApplicationBuilder builder)
+    {
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
+                               throw new ApplicationException("Database Connection string is null!");
+        
+        builder.Services.AddSingleton<DapperContext>(o => 
+            new DapperContext(connectionString));
+        
+        return builder;
+    }
+    
+    public static WebApplicationBuilder ConfigureCustomService(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddTransient<ISuperAdminUserService, SuperAdminUserService>();
+        return builder;
     }
 
     private static void InitializeDatabase(IApplicationBuilder app)
