@@ -100,11 +100,24 @@ public class Index : PageModel
 
         if (ModelState.IsValid)
         {
-            var result = await _signInManager.PasswordSignInAsync(Input.Username!, Input.Password!, Input.RememberLogin,
+            var user = await _userManager.FindByNameAsync(Input.UserName!);
+
+            if (user == null)
+            {
+                ModelState.AddModelError(LoginMessage.InvalidCredentialsErrorMessage.Key, LoginMessage.InvalidCredentialsErrorMessage.Message);
+                return Page();
+            }
+
+            if (user.IsDeleted || user.IsSuspended)
+            {
+                ModelState.AddModelError(LoginMessage.AccountIsSuspendedErrorMessage.Key, LoginMessage.AccountIsSuspendedErrorMessage.Message);
+                return Page();
+            }
+            
+            var result = await _signInManager.PasswordSignInAsync(Input.UserName!, Input.Password!, Input.RememberLogin,
                 lockoutOnFailure: true);
             if (result.Succeeded)
             {
-                var user = await _userManager.FindByNameAsync(Input.Username!);
                 await _events.RaiseAsync(new UserLoginSuccessEvent(user!.UserName, user.Id.ToString(), user.UserName,
                     clientId: context?.Client.ClientId));
                 Telemetry.Metrics.UserLogin(context?.Client.ClientId, IdentityServerConstants.LocalIdentityProvider);
@@ -143,15 +156,15 @@ public class Index : PageModel
 
             if (result.IsLockedOut)
             {
-                ModelState.AddModelError(string.Empty, LoginOptions.AccountIsLockedOutErrorMessage);
+                ModelState.AddModelError(LoginMessage.AccountIsLockedOutErrorMessage.Key, LoginMessage.AccountIsLockedOutErrorMessage.Message);
             }
 
             const string error = "invalid credentials";
-            await _events.RaiseAsync(new UserLoginFailureEvent(Input.Username, error,
+            await _events.RaiseAsync(new UserLoginFailureEvent(Input.UserName, error,
                 clientId: context?.Client.ClientId));
             Telemetry.Metrics.UserLoginFailure(context?.Client.ClientId, IdentityServerConstants.LocalIdentityProvider,
                 error);
-            ModelState.AddModelError(string.Empty, LoginOptions.InvalidCredentialsErrorMessage);
+            ModelState.AddModelError(LoginMessage.InvalidCredentialsErrorMessage.Key, LoginMessage.InvalidCredentialsErrorMessage.Message);
         }
 
         // something went wrong, show form with error
@@ -177,7 +190,7 @@ public class Index : PageModel
                 EnableLocalLogin = local,
             };
 
-            Input.Username = context.LoginHint;
+            Input.UserName = context.LoginHint;
 
             if (!local)
             {
