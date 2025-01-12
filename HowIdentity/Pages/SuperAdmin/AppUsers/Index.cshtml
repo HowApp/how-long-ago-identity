@@ -1,5 +1,5 @@
 @page
-@model HowIdentity.Pages.SuperAdmin.Users.Index
+@model HowIdentity.Pages.SuperAdmin.AppUsers.Index
 
 <div class="users-page">
     <div class="row">
@@ -98,6 +98,35 @@
                     }
                 </div>
             </div>
+            
+            @if (Model.Errors.Any())
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Errors</h2>
+                    </div>
+                </div>
+                <div>
+                    <table class="table table-bordered table-striped table-sm">
+                        <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Message</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var error in Model.Errors)
+                        {
+                            <tr>
+                                <td>@error.KeyError</td>
+                                <td>@error.MessageError</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
         </div>
     </div>
 </div>

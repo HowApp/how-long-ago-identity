@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace HowIdentity.Pages.SuperAdmin.Users;
+namespace HowIdentity.Pages.SuperAdmin.AppUsers;
 
 using Microsoft.AspNetCore.Mvc;
 using Services.SuperAdmin;
