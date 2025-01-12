@@ -105,12 +105,14 @@ public class Index : PageModel
             if (user == null)
             {
                 ModelState.AddModelError(LoginMessage.InvalidCredentialsErrorMessage.Key, LoginMessage.InvalidCredentialsErrorMessage.Message);
+                await BuildModelAsync(Input.ReturnUrl);
                 return Page();
             }
 
             if (user.IsDeleted || user.IsSuspended)
             {
                 ModelState.AddModelError(LoginMessage.AccountIsSuspendedErrorMessage.Key, LoginMessage.AccountIsSuspendedErrorMessage.Message);
+                await BuildModelAsync(Input.ReturnUrl);
                 return Page();
             }
             

@@ -2,6 +2,7 @@
 @model HowIdentity.Pages.SuperAdmin.AppUsers.Index
 
 <div class="users-page">
+    
     <div class="row">
         <div class="col">
             <div class="card">
@@ -67,14 +68,15 @@
                                             <td>@user.IsDeleted</td>
                                             <td>
                                                 <form method="post" asp-page-handler="Suspend">
-                                                    <input type="hidden" name="Id" value="@user.Id"/>
-                                                    <button type="submit" class="btn btn-danger">Suspend</button>
+                                                    <input type="hidden" name="UserId" value="@user.Id"/>
+                                                    <input type="hidden" name="Suspend" value="@(!user.IsSuspended)"/>
+                                                    <button type="submit" class="btn btn-danger">@(user.IsSuspended ? "Reactivate" : "Suspend")</button>
                                                 </form>
                                             </td>
                                             <td>
                                                 <form method="post" asp-page-handler="Delete">
-                                                    <input type="hidden" name="Id" value="@user.Id"/>
-                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                    <input type="hidden" name="UserId" value="@user.Id"/>
+                                                    <button type="submit" class="btn btn-danger" disabled="@(@user.IsDeleted ? "disabled" : null)">Delete</button>
                                                 </form>
                                             </td>
                                         </tr>

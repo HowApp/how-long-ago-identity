@@ -3,17 +3,23 @@ namespace HowIdentity.Services.SuperAdmin;
 using Common.Extensions;
 using Dapper;
 using Data;
+using Duende.IdentityServer.Services;
 using Entity;
 
 public class SuperAdminUserService : ISuperAdminUserService
 {
     private readonly ILogger<SuperAdminUserService> _logger;
     private readonly DapperContext _dapper;
+    private readonly ISessionManagementService _sessionManagementService;
 
-    public SuperAdminUserService(ILogger<SuperAdminUserService> logger, DapperContext dapper)
+    public SuperAdminUserService(
+        ILogger<SuperAdminUserService> logger,
+        DapperContext dapper,
+        ISessionManagementService sessionManagementService)
     {
         _logger = logger;
         _dapper = dapper;
+        _sessionManagementService = sessionManagementService;
     }
 
     public async Task<(
@@ -50,23 +56,33 @@ FROM {nameof(ApplicationDbContext.Users).ToSnake()} u
     {
         try
         {
-            var command = $@"
-UPDATE {nameof(ApplicationDbContext.Users).ToSnake()}
-SET 
-    {nameof(HowUser.IsSuspended).ToSnake()} = true
-WHERE {nameof(HowUser.Id).ToSnake()} = @userId
-RETURNING *;
-";
-            
-            await using var connection = _dapper.InitConnection();
-            var result = await connection.ExecuteAsync(command);
+            var result = await UpdateSuspendStatus(userId, true);
 
-            if (result == 0)
+            await _sessionManagementService.RemoveSessionsAsync(new RemoveSessionsContext
             {
-                return (false, (nameof(SuspendUser), "Something going wrong!"));
-            }
+                SubjectId = userId.ToString(),
+                RemoveServerSideSession = true,
+                SendBackchannelLogoutNotification = true,
+                RevokeTokens = true,
+                RevokeConsents = true
+            });
             
-            return (true, (string.Empty, string.Empty));
+            return result;
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return (false, (nameof(SuspendUser), e.Message));
+        }
+    }
+    
+    public async Task<(bool Success, (string KeyError, string MessageError) Error)> ReSuspendUser(int userId)
+    {
+        try
+        {
+            var result = await UpdateSuspendStatus(userId, false);
+            
+            return result;
         }
         catch (Exception e)
         {
@@ -83,12 +99,12 @@ RETURNING *;
             var command = $@"
 UPDATE {nameof(ApplicationDbContext.Users).ToSnake()}
 SET 
-    {nameof(HowUser.UserName).ToSnake()} = @UserName + {nameof(HowUser.UserName).ToSnake()},
-    {nameof(HowUser.NormalizedUserName).ToSnake()} = @NormalizedUserName + {nameof(HowUser.UserName).ToSnake()}, 
+    {nameof(HowUser.UserName).ToSnake()} = @UserName || {nameof(HowUser.UserName).ToSnake()},
+    {nameof(HowUser.NormalizedUserName).ToSnake()} = @NormalizedUserName || {nameof(HowUser.UserName).ToSnake()}, 
     {nameof(HowUser.Email).ToSnake()} = @Email,
     {nameof(HowUser.NormalizedEmail).ToSnake()} = @NormalizedEmail,
     {nameof(HowUser.IsDeleted).ToSnake()} = true
-WHERE {nameof(HowUser.Id).ToSnake()} = @userId
+WHERE {nameof(HowUser.Id).ToSnake()} = @Id
 RETURNING *;
 ";
             
@@ -97,6 +113,7 @@ RETURNING *;
                 command, 
                 new
                 {
+                    Id = userId,
                     UserName = salt,
                     NormalizedUserName = salt.ToUpper(),
                     Email = salt,
@@ -108,6 +125,15 @@ RETURNING *;
                 return (false, (nameof(DeleteUser), "Something going wrong!"));
             }
             
+            await _sessionManagementService.RemoveSessionsAsync(new RemoveSessionsContext
+            {
+                SubjectId = userId.ToString(),
+                RemoveServerSideSession = true,
+                SendBackchannelLogoutNotification = true,
+                RevokeTokens = true,
+                RevokeConsents = true
+            });
+            
             return (true, (string.Empty, string.Empty));
         }
         catch (Exception e)
@@ -115,5 +141,34 @@ RETURNING *;
             _logger.LogError(e, e.Message);
             return (false, (nameof(DeleteUser), e.Message));
         }
+    }
+
+    private async Task<(bool Success, (string KeyError, string MessageError) Error)> UpdateSuspendStatus(
+        int userId,
+        bool suspend)
+    {
+        var command = $@"
+UPDATE {nameof(ApplicationDbContext.Users).ToSnake()}
+SET 
+    {nameof(HowUser.IsSuspended).ToSnake()} = @IsSuspended
+WHERE {nameof(HowUser.Id).ToSnake()} = @Id
+RETURNING *;
+";
+            
+        await using var connection = _dapper.InitConnection();
+        var result = await connection.ExecuteAsync(
+            command,
+            new
+            {
+                Id = userId,
+                IsSuspended = suspend
+            });
+
+        if (result == 0)
+        {
+            return (false, (nameof(SuspendUser), "Something going wrong!"));
+        }
+        
+        return (true, (string.Empty, string.Empty));
     }
 }
