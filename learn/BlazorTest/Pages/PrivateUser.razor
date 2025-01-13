@@ -1,0 +1,18 @@
+@page "/private/user"
+@using Microsoft.AspNetCore.Authorization
+@* @attribute [Authorize(Roles = "User")] *@
+
+<h3>UserRoleBasePage</h3>
+
+<AuthorizeView Roles="User">
+    <p>You can only see this if you satisfy the IsUser policy.</p>
+</AuthorizeView>
+<AuthorizeView Roles="Admin">
+    <p>You can only see this if you satisfy the IsAdmin policy.</p>
+</AuthorizeView>
+<AuthorizeView Roles="SuperAdmin">
+    <p>You can only see this if you satisfy the IsSuperAdmin policy.</p>
+</AuthorizeView>
+@code {
+    
+}

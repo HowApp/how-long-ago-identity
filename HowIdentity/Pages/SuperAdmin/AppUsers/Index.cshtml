@@ -72,7 +72,7 @@
                                                 <form method="post" asp-page-handler="Suspend">
                                                     <input type="hidden" name="UserId" value="@user.Id"/>
                                                     <input type="hidden" name="IsSuspend" value="@(user.IsSuspended ? "True" : "False")"/>
-                                                    <button type="submit" class="btn btn-danger">@(user.IsSuspended ? "Reactivate" : "Suspend")</button>
+                                                    <button type="submit" class="btn btn-danger" disabled="@(user.IsDeleted ? "disabled" : null)">@(user.IsSuspended ? "Reactivate" : "Suspend")</button>
                                                 </form>
                                             </td>
                                             <td>
