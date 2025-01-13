@@ -125,6 +125,7 @@ WHERE {nameof(HowUser.Id).ToSnake()} = @Id
         WHERE ur.{nameof(HowUserRole.UserId).ToSnake()} = @Id 
             AND ur.{nameof(HowUserRole.RoleId).ToSnake()} IN ({AppConstants.Role.SuperAdmin.Id}, {AppConstants.Role.Admin.Id})
     )
+    AND {nameof(HowUser.IsDeleted).ToSnake()} = FALSE
 RETURNING *;
 ";
             
@@ -178,6 +179,7 @@ WHERE {nameof(HowUser.Id).ToSnake()} = @Id
             WHERE ur.{nameof(HowUserRole.UserId).ToSnake()} = @Id 
                 AND ur.{nameof(HowUserRole.RoleId).ToSnake()} IN ({AppConstants.Role.SuperAdmin.Id}, {AppConstants.Role.Admin.Id})
         )
+    AND {nameof(HowUser.IsDeleted).ToSnake()} = FALSE
 RETURNING *;
 ";
             
