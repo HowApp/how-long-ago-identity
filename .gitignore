@@ -397,11 +397,14 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 
+
+.vscode
+
 # Default ignored files
 /shelf/
 /workspace.xml
 # Rider ignored files
-/.idea.HowIdentity.iml
+.idea
 /modules.xml
 /projectSettingsUpdater.xml
 /contentModel.xml
