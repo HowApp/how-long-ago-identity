@@ -53,6 +53,7 @@
                                     <tr>
                                         <th>Id</th>
                                         <th>Email</th>
+                                        <th>Roles</th>
                                         <th>IsSuspended</th>
                                         <th>IsDeleted</th>
                                         <th></th>
@@ -64,19 +65,20 @@
                                         <tr>
                                             <td>@user.Id</td>
                                             <td>@user.Email</td>
+                                            <td>@user.Roles</td>
                                             <td>@user.IsSuspended</td>
                                             <td>@user.IsDeleted</td>
                                             <td>
                                                 <form method="post" asp-page-handler="Suspend">
                                                     <input type="hidden" name="UserId" value="@user.Id"/>
-                                                    <input type="hidden" name="Suspend" value="@(!user.IsSuspended)"/>
+                                                    <input type="hidden" name="IsSuspend" value="@(user.IsSuspended ? "True" : "False")"/>
                                                     <button type="submit" class="btn btn-danger">@(user.IsSuspended ? "Reactivate" : "Suspend")</button>
                                                 </form>
                                             </td>
                                             <td>
                                                 <form method="post" asp-page-handler="Delete">
                                                     <input type="hidden" name="UserId" value="@user.Id"/>
-                                                    <button type="submit" class="btn btn-danger" disabled="@(@user.IsDeleted ? "disabled" : null)">Delete</button>
+                                                    <button type="submit" class="btn btn-danger" disabled="@(user.IsDeleted ? "disabled" : null)">Delete</button>
                                                 </form>
                                             </td>
                                         </tr>
