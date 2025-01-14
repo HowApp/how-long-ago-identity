@@ -1,0 +1,7 @@
+@page "/private/super-admin"
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize(Roles = "SuperAdmin")]
+
+<h3>UserRoleBasePage</h3>
+
+<p>You can only see this if you satisfy the IsSuperAdmin policy.</p>
