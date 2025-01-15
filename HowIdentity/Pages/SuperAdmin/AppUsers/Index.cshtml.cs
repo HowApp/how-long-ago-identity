@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace HowIdentity.Pages.SuperAdmin.AppUsers;
 
 using System.Text.Json;
-using Common.Extensions;
 using Common.ResultType;
 using Microsoft.AspNetCore.Mvc;
 using Services.SuperAdmin;
@@ -11,7 +10,7 @@ using Services.SuperAdmin;
 public class Index : PageModel
 {
     private ISuperAdminUserService _superAdminUserService;
-    public List<(int Id, string Email, string Roles, bool IsSuspended, bool IsDeleted)> Users { get; set; } = new();
+    public List<AppUserModel> Users { get; set; } = new();
     [TempData]
     public string ErrorsString { get; set; } = default!;
     public List<ErrorResult> Errors { get; set; } = new();
@@ -35,13 +34,13 @@ public class Index : PageModel
 
         var userFromDb = await _superAdminUserService.GetUsers();
 
-        if (userFromDb.Success)
+        if (userFromDb.IsSuccess)
         {
-            Users = userFromDb.Values;
+            Users = userFromDb.Value();
         }
         else
         {
-            Errors.AddError(userFromDb.Error);
+            Errors.AddRange(userFromDb.Errors);
         }
     }
 
@@ -51,9 +50,9 @@ public class Index : PageModel
             await _superAdminUserService.ReSuspendUser(UserId) : 
             await _superAdminUserService.SuspendUser(UserId);
 
-        if (!suspendResult.Success)
+        if (!suspendResult.IsSuccess)
         {
-            Errors.AddError(suspendResult.Error);
+            Errors.AddRange(suspendResult.Errors);
         }
 
         return RedirectToPage();
@@ -65,7 +64,7 @@ public class Index : PageModel
 
         if (!deletedResult.IsSuccess)
         {
-            Errors.AddRange(deletedResult.Errors());
+            Errors.AddRange(deletedResult.Errors);
         }
 
         return RedirectToPage();

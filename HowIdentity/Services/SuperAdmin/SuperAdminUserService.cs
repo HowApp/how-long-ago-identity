@@ -7,6 +7,7 @@ using Dapper;
 using Data;
 using Duende.IdentityServer.Services;
 using Entity;
+using Pages.SuperAdmin.AppUsers;
 
 public class SuperAdminUserService : ISuperAdminUserService
 {
@@ -24,11 +25,7 @@ public class SuperAdminUserService : ISuperAdminUserService
         _sessionManagementService = sessionManagementService;
     }
 
-    public async Task<(
-        List<(int Id, string Email, string Roles, bool IsSuspended, bool IsDeleted)> Values,
-        bool Success,
-        (string KeyError, string MessageError) Error
-        )> GetUsers()
+    public async Task<ResultGeneric<List<AppUserModel>>>  GetUsers()
     {
         try
         {
@@ -50,26 +47,24 @@ LEFT JOIN (
 ) user_roles ON u.{nameof(HowUser.Id).ToSnake()} = user_roles.user_id
 ";
             await using var connection = _dapper.InitConnection();
-            var users = await connection.QueryAsync<(int Id, string Email, string Roles, bool IsSuspended, bool IsDeleted)>(query);
+            var users = await connection.QueryAsync<AppUserModel>(query);
             
-            var result = users.ToList();
-            
-            return (result, result.Any(), (string.Empty, string.Empty));
+            return ResultGeneric<List<AppUserModel>>.Success(users.ToList());
         }
         catch (Exception e)
         {
             _logger.LogError(e, e.Message);
-            return (new(),false, (nameof(GetUsers), e.Message));
+            return ResultGeneric<List<AppUserModel>>.Fatality(nameof(GetUsers));
         }
     }
 
-    public async Task<(bool Success, (string KeyError, string MessageError) Error)> SuspendUser(int userId)
+    public async Task<ResultDefault> SuspendUser(int userId)
     {
         try
         {
             var result = await UpdateSuspendStatus(userId, true);
 
-            if (result.Success)
+            if (result)
             {
                 await _sessionManagementService.RemoveSessionsAsync(new RemoveSessionsContext
                 {
@@ -81,27 +76,31 @@ LEFT JOIN (
                 });
             }
 
-            return result;
+            return result ? 
+                ResultDefault.Success() : 
+                ResultDefault.Fatality(nameof(SuspendUser), "User is not suspended!");
         }
         catch (Exception e)
         {
             _logger.LogError(e, e.Message);
-            return (false, (nameof(SuspendUser), e.Message));
+            return ResultDefault.Fatality(nameof(SuspendUser));
         }
     }
     
-    public async Task<(bool Success, (string KeyError, string MessageError) Error)> ReSuspendUser(int userId)
+    public async Task<ResultDefault> ReSuspendUser(int userId)
     {
         try
         {
             var result = await UpdateSuspendStatus(userId, false);
             
-            return result;
+            return result ? 
+                ResultDefault.Success() : 
+                ResultDefault.Fatality(nameof(ReSuspendUser), "User is not resuspended!");
         }
         catch (Exception e)
         {
             _logger.LogError(e, e.Message);
-            return (false, (nameof(SuspendUser), e.Message));
+            return ResultDefault.Fatality(nameof(ReSuspendUser));
         }
     }
 
@@ -165,7 +164,7 @@ RETURNING *;
         }
     }
 
-    private async Task<(bool Success, (string KeyError, string MessageError) Error)> UpdateSuspendStatus(
+    private async Task<bool> UpdateSuspendStatus(
         int userId,
         bool suspend)
     {
@@ -193,11 +192,6 @@ RETURNING *;
                 IsSuspended = suspend
             });
 
-        if (result == 0)
-        {
-            return (false, (nameof(SuspendUser), "Something going wrong!"));
-        }
-        
-        return (true, (string.Empty, string.Empty));
+        return result != 0;
     }
 }

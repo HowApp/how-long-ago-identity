@@ -45,24 +45,16 @@ public class ResultGeneric<T>
         FailureData = null
     };
     
-    public static ResultGeneric<int> Fatality(string key = "default", string message = "Something went wrong!") => new (false)
+    public static ResultGeneric<T> Fatality(string key = "default", string message = "Something went wrong!") => new (false)
     {
-        SuccessData = new Success<int>
-        {
-            Value = -1
-        },
         FailureData = new Failure
         {
             Errors = new [] { new ErrorResult(key, message) }
         }
     };
     
-    public static ResultGeneric<int> Fatality(IEnumerable<ErrorResult> errors) => new (false)
+    public static ResultGeneric<T> Fatality(IEnumerable<ErrorResult> errors) => new (false)
     {
-        SuccessData = new Success<int>
-        {
-            Value = -1
-        },
         FailureData = new Failure
         {
             Errors = errors
@@ -79,10 +71,7 @@ public class ResultGeneric<T>
         return SuccessData.Value;
     }
 
-    public IEnumerable<ErrorResult> Errors()
-    {
-        return FailureData?.Errors ?? [];
-    }
+    public IEnumerable<ErrorResult> Errors => FailureData?.Errors ?? [];
 }
 
 public class Success<T>
