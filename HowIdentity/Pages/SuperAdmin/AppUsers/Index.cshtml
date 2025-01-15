@@ -123,8 +123,8 @@
                         @foreach (var error in Model.Errors)
                         {
                             <tr>
-                                <td>@error.KeyError</td>
-                                <td>@error.MessageError</td>
+                                <td>@error.Key</td>
+                                <td>@error.Message</td>
                             </tr>
                         }
                         </tbody>

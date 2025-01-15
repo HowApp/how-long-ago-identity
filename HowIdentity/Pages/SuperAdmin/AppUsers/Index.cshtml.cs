@@ -4,8 +4,8 @@ namespace HowIdentity.Pages.SuperAdmin.AppUsers;
 
 using System.Text.Json;
 using Common.Extensions;
+using Common.ResultType;
 using Microsoft.AspNetCore.Mvc;
-using Models;
 using Services.SuperAdmin;
 
 public class Index : PageModel
@@ -14,7 +14,7 @@ public class Index : PageModel
     public List<(int Id, string Email, string Roles, bool IsSuspended, bool IsDeleted)> Users { get; set; } = new();
     [TempData]
     public string ErrorsString { get; set; } = default!;
-    public List<PageErrorModel> Errors { get; set; } = new();
+    public List<ErrorResult> Errors { get; set; } = new();
 
     public Index(ISuperAdminUserService superAdminUserService)
     {
@@ -30,7 +30,7 @@ public class Index : PageModel
     {
         if (!string.IsNullOrEmpty(ErrorsString))
         {
-            Errors = JsonSerializer.Deserialize<List<PageErrorModel>>(ErrorsString);
+            Errors = JsonSerializer.Deserialize<List<ErrorResult>>(ErrorsString);
         }
 
         var userFromDb = await _superAdminUserService.GetUsers();
@@ -63,9 +63,9 @@ public class Index : PageModel
     {
         var deletedResult = await _superAdminUserService.DeleteUser(UserId);
 
-        if (!deletedResult.Success)
+        if (!deletedResult.IsSuccess)
         {
-            Errors.AddError(deletedResult.Error);
+            Errors.AddRange(deletedResult.Errors());
         }
 
         return RedirectToPage();

@@ -1,5 +1,7 @@
 namespace HowIdentity.Services.SuperAdmin;
 
+using Common.ResultType;
+
 public interface ISuperAdminUserService
 {
     public Task<(
@@ -9,5 +11,5 @@ public interface ISuperAdminUserService
         GetUsers();
     public Task<(bool Success, (string KeyError, string MessageError) Error)> SuspendUser(int userId);
     public Task<(bool Success, (string KeyError, string MessageError) Error)> ReSuspendUser(int userId);
-    public Task<(bool Success, (string KeyError, string MessageError) Error)> DeleteUser(int userId);
+    public Task<ResultDefault> DeleteUser(int userId);
 }

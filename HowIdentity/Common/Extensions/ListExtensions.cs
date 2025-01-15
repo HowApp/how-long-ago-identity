@@ -1,11 +1,11 @@
 namespace HowIdentity.Common.Extensions;
 
-using Models;
+using ResultType;
 
 public static class ListExtensions
 {
-    public static void AddError(this List<PageErrorModel> list, (string KeyError, string MessageError) error)
+    public static void AddError(this List<ErrorResult> list, (string KeyError, string MessageError) error)
     {
-        list.Add(new PageErrorModel{KeyError = error.KeyError, MessageError = error.MessageError});
+        list.Add(new ErrorResult{Key = error.KeyError, Message = error.MessageError});
     }
 }

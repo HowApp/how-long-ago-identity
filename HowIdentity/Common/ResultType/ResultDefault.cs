@@ -8,11 +8,11 @@ public class ResultDefault : ResultGeneric<int>
 
     public static ResultDefault Success() => new(true) { };
 
-    public new static ResultDefault Fatality() => new (false)
+    public new static ResultDefault Fatality(string key = "default", string message = "Something went wrong!") => new (false)
     {
         FailureData = new Failure
         {
-            Errors = [new ErrorResult("default", "Something went wrong!")]
+            Errors = [new ErrorResult(key, message)]
         }
     };
     
@@ -45,7 +45,7 @@ public class ResultGeneric<T>
         FailureData = null
     };
     
-    public static ResultGeneric<int> Fatality() => new (false)
+    public static ResultGeneric<int> Fatality(string key = "default", string message = "Something went wrong!") => new (false)
     {
         SuccessData = new Success<int>
         {
@@ -53,7 +53,7 @@ public class ResultGeneric<T>
         },
         FailureData = new Failure
         {
-            Errors = new [] { new ErrorResult("default", "Something went wrong!") }
+            Errors = new [] { new ErrorResult(key, message) }
         }
     };
     

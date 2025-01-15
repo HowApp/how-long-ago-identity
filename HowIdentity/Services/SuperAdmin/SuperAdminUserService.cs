@@ -2,6 +2,7 @@ namespace HowIdentity.Services.SuperAdmin;
 
 using Common.Constants;
 using Common.Extensions;
+using Common.ResultType;
 using Dapper;
 using Data;
 using Duende.IdentityServer.Services;
@@ -104,7 +105,7 @@ LEFT JOIN (
         }
     }
 
-    public async Task<(bool Success, (string KeyError, string MessageError) Error)> DeleteUser(int userId)
+    public async Task<ResultDefault> DeleteUser(int userId)
     {
         try
         {
@@ -143,9 +144,9 @@ RETURNING *;
 
             if (result == 0)
             {
-                return (false, (nameof(DeleteUser), "Something going wrong!"));
+                return ResultDefault.Fatality(nameof(DeleteUser), "User not deleted!");
             }
-            
+
             await _sessionManagementService.RemoveSessionsAsync(new RemoveSessionsContext
             {
                 SubjectId = userId.ToString(),
@@ -154,13 +155,13 @@ RETURNING *;
                 RevokeTokens = true,
                 RevokeConsents = true
             });
-            
-            return (true, (string.Empty, string.Empty));
+
+            return ResultDefault.Success();
         }
         catch (Exception e)
         {
             _logger.LogError(e, e.Message);
-            return (false, (nameof(DeleteUser), e.Message));
+            return ResultDefault.Fatality(nameof(DeleteUser));
         }
     }
 
