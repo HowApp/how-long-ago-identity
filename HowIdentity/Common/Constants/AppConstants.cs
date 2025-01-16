@@ -22,5 +22,15 @@ public static class AppConstants
             public const int Id = 3;
             public const string Name = "SuperAdmin";
         }
+
+        public static (int Id, string Name)[] RoleList()
+        {
+            return new[]
+            {
+                (User.Id, User.Name),
+                (Admin.Id, Admin.Name),
+                (SuperAdmin.Id, SuperAdmin.Name),
+            };
+        }
     }
 }

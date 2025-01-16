@@ -56,6 +56,9 @@
                                         <th>Roles</th>
                                         <th>IsSuspended</th>
                                         <th>IsDeleted</th>
+                                        <th>Disable</th>
+                                        <th>Delete</th>
+                                        <th>Action</th>
                                         <th></th>
                                     </tr>
                                     </thead>
@@ -80,6 +83,16 @@
                                                     <input type="hidden" name="UserId" value="@user.Id"/>
                                                     <button type="submit" class="btn btn-danger" disabled="@(user.IsDeleted ? "disabled" : null)">Delete</button>
                                                 </form>
+                                            </td>
+                                            <td>
+                                                @if (user.IsDeleted)
+                                                {
+                                                    <a>No Actions...</a>
+                                                }
+                                                else
+                                                {
+                                                    <a href="/SuperAdmin/EditUser/@user.Id">Edit Role</a>
+                                                }
                                             </td>
                                         </tr>
                                     }

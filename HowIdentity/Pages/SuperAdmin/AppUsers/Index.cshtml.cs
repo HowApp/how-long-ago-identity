@@ -23,7 +23,7 @@ public class Index : PageModel
     [BindProperty(SupportsGet = true)] public string EmailFilter  { get; set; }
     [BindProperty] public int UserId { get; set; }
     [BindProperty] public bool IsSuspend { get; set; }
-
+    
     // TODO add pagination
     public async Task OnGet()
     {

@@ -31,16 +31,18 @@ public class SuperAdminUserService : ISuperAdminUserService
         {
             var query = $@"
 SELECT 
-    {nameof(HowUser.Id).ToSnake()},
-    {nameof(HowUser.Email).ToSnake()},
-    user_roles.roles,
-    {nameof(HowUser.IsSuspended).ToSnake()},
-    {nameof(HowUser.IsDeleted).ToSnake()}
+    {nameof(HowUser.Id).ToSnake()} AS {nameof(AppUserModel.Id)},
+    {nameof(HowUser.Email).ToSnake()} AS {nameof(AppUserModel.Email)},
+    user_roles.roles_name AS {nameof(AppUserModel.Roles)},
+    user_roles.roles_id AS {nameof(AppUserModel.RoleIds)},
+    {nameof(HowUser.IsSuspended).ToSnake()} AS {nameof(AppUserModel.IsSuspended)},
+    {nameof(HowUser.IsDeleted).ToSnake()} AS {nameof(AppUserModel.IsDeleted)}
 FROM {nameof(ApplicationDbContext.Users).ToSnake()} u
 LEFT JOIN (
         SELECT 
         ur.{nameof(HowUserRole.UserId).ToSnake()} AS user_id,
-        STRING_AGG(r.{nameof(HowRole.Name).ToSnake()}, '; ' ) AS roles
+        ARRAY_AGG(r.{nameof(HowRole.Id).ToSnake()}) AS roles_id,
+        STRING_AGG(r.{nameof(HowRole.Name).ToSnake()}, '; ' ) AS roles_name
     FROM {nameof(ApplicationDbContext.UserRoles).ToSnake()} ur
     LEFT JOIN {nameof(ApplicationDbContext.Roles).ToSnake()} r on r.{nameof(HowRole.Id).ToSnake()} = ur.{nameof(HowUserRole.RoleId).ToSnake()}
     GROUP BY ur.{nameof(HowUserRole.UserId).ToSnake()}
@@ -55,6 +57,54 @@ LEFT JOIN (
         {
             _logger.LogError(e, e.Message);
             return ResultGeneric<List<AppUserModel>>.Fatality(nameof(GetUsers));
+        }
+    }
+
+    public async Task<ResultGeneric<AppUserModel>> GetUserById(int userId)
+    {
+        try
+        {
+            var query = $@"
+SELECT 
+    {nameof(HowUser.Id).ToSnake()} AS {nameof(AppUserModel.Id)},
+    {nameof(HowUser.Email).ToSnake()} AS {nameof(AppUserModel.Email)},
+    user_roles.roles_name AS {nameof(AppUserModel.Roles)},
+    user_roles.roles_id AS {nameof(AppUserModel.RoleIds)},
+    {nameof(HowUser.IsSuspended).ToSnake()} AS {nameof(AppUserModel.IsSuspended)},
+    {nameof(HowUser.IsDeleted).ToSnake()} AS {nameof(AppUserModel.IsDeleted)}
+FROM {nameof(ApplicationDbContext.Users).ToSnake()} u
+LEFT JOIN (
+        SELECT 
+        ur.{nameof(HowUserRole.UserId).ToSnake()} AS user_id,
+        ARRAY_AGG(r.{nameof(HowRole.Id).ToSnake()}) AS roles_id,
+        STRING_AGG(r.{nameof(HowRole.Name).ToSnake()}, '; ' ) AS roles_name
+    FROM {nameof(ApplicationDbContext.UserRoles).ToSnake()} ur
+    LEFT JOIN {nameof(ApplicationDbContext.Roles).ToSnake()} r on r.{nameof(HowRole.Id).ToSnake()} = ur.{nameof(HowUserRole.RoleId).ToSnake()}
+    GROUP BY ur.{nameof(HowUserRole.UserId).ToSnake()}
+) user_roles ON u.{nameof(HowUser.Id).ToSnake()} = user_roles.user_id
+WHERE u.{nameof(HowUser.Id).ToSnake()} = @Id
+    AND {nameof(HowUser.IsDeleted).ToSnake()} = FALSE
+LIMIT 1;
+";
+            
+            await using var connection = _dapper.InitConnection();
+            var quryResult = await connection.QueryAsync<AppUserModel>(
+                query,
+                new { Id = userId });
+            
+            var user = quryResult.FirstOrDefault();
+
+            if (user is null)
+            {
+                return ResultGeneric<AppUserModel>.Fatality(nameof(GetUserById), "User not found!");
+            }
+            
+            return ResultGeneric<AppUserModel>.Success(user);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return ResultGeneric<AppUserModel>.Fatality(nameof(GetUserById));
         }
     }
 

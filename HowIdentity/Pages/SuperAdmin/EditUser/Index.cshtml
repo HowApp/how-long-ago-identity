@@ -1,0 +1,75 @@
+@page "{id:int?}"
+@model HowIdentity.Pages.SuperAdmin.EditUser.Index
+
+<div class="user-page">
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h2>Edit User</h2>
+                </div>
+                
+                <div class="card-body">
+                    <table class="table table-bordered table-striped table-sm">
+                        <thead>
+                        <tr>
+                            <th>Id</th>
+                            <th>Roles</th>
+                            <th>Options</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @for (var i = 0; i < Model.RoleOptions.Length; i++)
+                        {
+                            <tr>
+                                <td>
+                                    <input type="hidden" asp-for="RoleOptions[i].Id"/>
+                                    @Model.RoleOptions[i].Id
+                                </td>
+                                <td>@Model.RoleOptions[i].Name</td>
+                                <td>
+                                    <input asp-for="RoleOptions[i].Apply" type="checkbox"/>
+                                    @Model.RoleOptions[i].Apply
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                    <form method="post" asp-page-handler="Update">
+                        <input type="hidden" name="UserId" value="@Model.User.Id"/>
+                        <button type="submit" class="btn btn-danger">Update</button>
+                    </form>
+                </div>
+            </div>
+
+            @if (Model.Errors.Any())
+            {
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Errors</h2>
+                    </div>
+                </div>
+                <div>
+                    <table class="table table-bordered table-striped table-sm">
+                        <thead>
+                        <tr>
+                            <th>Key</th>
+                            <th>Message</th>
+                            <th></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var error in Model.Errors)
+                        {
+                            <tr>
+                                <td>@error.Key</td>
+                                <td>@error.Message</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
