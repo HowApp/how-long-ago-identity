@@ -1,5 +1,6 @@
 namespace HowIdentity.Services.SuperAdmin;
 
+using System.Text;
 using Common.Constants;
 using Common.Extensions;
 using Common.ResultType;
@@ -151,6 +152,66 @@ LIMIT 1;
         {
             _logger.LogError(e, e.Message);
             return ResultDefault.Fatality(nameof(ReSuspendUser));
+        }
+    }
+
+    //TODO: add check of admin or super admin is target
+    //TODO do we need logout user????
+    public async Task<ResultDefault> UpdateUserRoles(int userId, (int RoleId, bool State)[] roles)
+    {
+        try
+        {
+            if (roles.Length == 0)
+            {
+                return ResultDefault.Success();
+            }
+
+            var roleToAdd = roles.Where(r => r.State).Select(r => r.RoleId).ToArray();
+            var roleToDelete = roles.Where(r => !r.State).Select(r => r.RoleId).ToArray();
+            var commandBuilder = new StringBuilder();
+
+            if (roleToDelete.Any())
+            {
+                var commandDelete = $@"
+DELETE FROM {nameof(ApplicationDbContext.UserRoles).ToSnake()}
+WHERE {nameof(HowUserRole.RoleId).ToSnake()} = ANY(@RoleIdToDelete)
+    AND {nameof(HowUserRole.UserId).ToSnake()} = @UserId;
+";
+
+                commandBuilder.Append(commandDelete);
+            }
+
+            if (roleToAdd.Any())
+            {
+                var sequence = string.Join(",\n", roleToAdd.Select(r => $"({userId}, {r})"));
+
+                var commandInsert = $@"
+INSERT INTO {nameof(ApplicationDbContext.UserRoles).ToSnake()} ({nameof(HowUserRole.UserId).ToSnake()}, {nameof(HowUserRole.RoleId).ToSnake()})
+VALUES 
+({nameof(sequence)}, {nameof(sequence)})
+ON CONFLICT ({nameof(HowUserRole.UserId).ToSnake()}, {nameof(HowUserRole.RoleId).ToSnake()})
+DO NOTHING;";
+
+                commandBuilder.Append(commandInsert.Replace($"({nameof(sequence)}, {nameof(sequence)})", sequence));
+            }
+
+            var command = commandBuilder.ToString();
+            await using var connection = _dapper.InitConnection();
+
+            await connection.ExecuteAsync(
+                command, 
+                new
+                {
+                    UserId = userId,
+                    RoleIdToDelete = roleToDelete
+                });
+            
+            return ResultDefault.Success();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+            return ResultDefault.Fatality(nameof(UpdateUserRoles));
         }
     }
 

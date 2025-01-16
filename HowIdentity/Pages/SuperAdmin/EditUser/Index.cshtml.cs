@@ -60,12 +60,15 @@ public class Index : PageModel
 
     public async Task<IActionResult> OnPostUpdate()
     {
-        foreach (var role in RoleOptionsUpdate)
+        var result = await _superAdminUserService.UpdateUserRoles(
+            UserId, 
+            RoleOptionsUpdate.Select(o => (o.Id, o.Apply)).ToArray());
+
+        if (!result.IsSuccess)
         {
-            Console.WriteLine($"{role.Id}");
+            Errors.AddRange(result.Errors);
         }
-        
-        await Task.Delay(500);
+
         return RedirectToPage();
     }
     
