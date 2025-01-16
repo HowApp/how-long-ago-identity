@@ -13,9 +13,9 @@ public class Index : PageModel
 {
     private ISuperAdminUserService _superAdminUserService;
     
-    [BindProperty(SupportsGet = true)]
-    // public (int Id, string Name, bool Apply)[] RoleOptions { get; set; } = [];
     public RoleModel[] RoleOptions { get; set; } = [];
+    [BindProperty]
+    public RoleUpdateModel[] RoleOptionsUpdate { get; set; } = [];
     [BindProperty]
     public int UserId { get; set; }
     
@@ -38,32 +38,31 @@ public class Index : PageModel
         
         var userFromDb = await _superAdminUserService.GetUserById(id);
 
-        if (!userFromDb.IsSuccess)
+        if (userFromDb.IsSuccess)
+        {
+            User = userFromDb.Value();
+            RoleOptions = AppConstants.Role.RoleList()
+                .Select(r => new RoleModel
+                {
+                    Id = r.Id,
+                    Name = r.Name,
+                    Apply = User.RoleIds.Contains(r.Id)
+                })
+                .ToArray();
+
+            RoleOptionsUpdate = new RoleUpdateModel[RoleOptions.Length];
+        }
+        else
         {
             Errors.AddRange(userFromDb.Errors);
-            return;
-            
         }
-
-        User = userFromDb.Value();
-        // RoleOptions = AppConstants.Role.RoleList()
-        //     .Select(r => (r.Id, r.Name, User.RoleIds.Contains(r.Id)))
-        //     .ToArray();
-        RoleOptions = AppConstants.Role.RoleList()
-            .Select(r => new RoleModel
-            {
-                Id = r.Id,
-                Name = r.Name,
-                Apply = User.RoleIds.Contains(r.Id)
-            })
-            .ToArray();
     }
 
     public async Task<IActionResult> OnPostUpdate()
     {
-        foreach (var role in RoleOptions)
+        foreach (var role in RoleOptionsUpdate)
         {
-            Console.WriteLine($"{role.Id} - {role.Name}");
+            Console.WriteLine($"{role.Id}");
         }
         
         await Task.Delay(500);
@@ -85,6 +84,11 @@ public class Index : PageModel
     {
         public int Id { get; set; }
         public string Name { get; set; }
+        public bool Apply { get; set; }
+    }
+    public class RoleUpdateModel
+    {
+        public int Id { get; set; }
         public bool Apply { get; set; }
     }
 }

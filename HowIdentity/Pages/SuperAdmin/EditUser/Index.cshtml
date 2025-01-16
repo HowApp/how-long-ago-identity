@@ -8,38 +8,37 @@
                 <div class="card-header">
                     <h2>Edit User</h2>
                 </div>
-                
-                <div class="card-body">
-                    <table class="table table-bordered table-striped table-sm">
-                        <thead>
-                        <tr>
-                            <th>Id</th>
-                            <th>Roles</th>
-                            <th>Options</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @for (var i = 0; i < Model.RoleOptions.Length; i++)
-                        {
+                <form method="post" asp-page-handler="Update">
+                    <div class="card-body">
+                        <table class="table table-bordered table-striped table-sm">
+                            <thead>
                             <tr>
-                                <td>
-                                    <input type="hidden" asp-for="RoleOptions[i].Id"/>
-                                    @Model.RoleOptions[i].Id
-                                </td>
-                                <td>@Model.RoleOptions[i].Name</td>
-                                <td>
-                                    <input asp-for="RoleOptions[i].Apply" type="checkbox"/>
-                                    @Model.RoleOptions[i].Apply
-                                </td>
+                                <th>Id</th>
+                                <th>Roles</th>
+                                <th>Options</th>
                             </tr>
-                        }
-                        </tbody>
-                    </table>
-                    <form method="post" asp-page-handler="Update">
+                            </thead>
+                            <tbody>
+                            @for (var i = 0; i < Model.RoleOptions.Length; i++)
+                            {
+                                <tr>
+                                    <td>
+                                        <input type="hidden" asp-for="RoleOptionsUpdate[i].Id" value="@Model.RoleOptions[i].Id"/>
+                                        @Model.RoleOptions[i].Id
+                                    </td>
+                                    <td>@Model.RoleOptions[i].Name</td>
+                                    <td>
+                                        <input asp-for="RoleOptionsUpdate[i].Apply" checked="@Model.RoleOptions[i].Apply"/>
+                                    </td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                        
                         <input type="hidden" name="UserId" value="@Model.User.Id"/>
                         <button type="submit" class="btn btn-danger">Update</button>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
 
             @if (Model.Errors.Any())
