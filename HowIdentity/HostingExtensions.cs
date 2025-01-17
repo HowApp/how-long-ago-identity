@@ -14,7 +14,9 @@ using IdentityModel;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
 using Services;
+using Services.CurrentUser;
 using Services.SuperAdmin;
+using Services.TargetUser;
 
 internal static class HostingExtensions
 {
@@ -191,6 +193,8 @@ internal static class HostingExtensions
     public static WebApplicationBuilder ConfigureCustomService(this WebApplicationBuilder builder)
     {
         builder.Services.AddTransient<ISuperAdminUserService, SuperAdminUserService>();
+        builder.Services.AddTransient<ICurrentUserService, CurrentUserService>();
+        builder.Services.AddTransient<ITargetUserService, TargetUserService>();
         return builder;
     }
 

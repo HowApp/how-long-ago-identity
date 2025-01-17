@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
-
 namespace HowIdentity.Pages.SuperAdmin.EditUser;
 
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using System.Text.Json;
 using AppUsers;
 using Common.Constants;
@@ -19,7 +18,7 @@ public class Index : PageModel
     [BindProperty]
     public int UserId { get; set; }
     
-    public AppUserModel User { get; set; } = default!;
+    public AppUserModel AppUser { get; set; } = default!;
     public string ErrorsString { get; set; } = default!;
     public List<ErrorResult> Errors { get; set; } = new();
     
@@ -40,13 +39,13 @@ public class Index : PageModel
 
         if (userFromDb.IsSuccess)
         {
-            User = userFromDb.Value();
+            AppUser = userFromDb.Value();
             RoleOptions = AppConstants.Role.RoleList()
                 .Select(r => new RoleModel
                 {
                     Id = r.Id,
                     Name = r.Name,
-                    Apply = User.RoleIds.Contains(r.Id)
+                    Apply = AppUser.RoleIds.Contains(r.Id)
                 })
                 .ToArray();
 
