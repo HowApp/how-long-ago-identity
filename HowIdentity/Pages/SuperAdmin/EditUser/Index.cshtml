@@ -1,4 +1,4 @@
-@page "{id:int?}"
+@page "{id:int:min(1)}"
 @model HowIdentity.Pages.SuperAdmin.EditUser.Index
 
 <div class="user-page">
@@ -34,8 +34,9 @@
                             }
                             </tbody>
                         </table>
-                        
                         <input type="hidden" name="UserId" value="@Model.AppUser.Id"/>
+                        <input asp-for="ForceSessionRemoving" id="session-removing"/>
+                        <label for="session-removing">Force removing user sessions</label>
                         <button type="submit" class="btn btn-danger">Update</button>
                     </div>
                 </form>

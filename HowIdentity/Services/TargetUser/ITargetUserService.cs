@@ -4,5 +4,10 @@ using Npgsql;
 
 public interface ITargetUserService
 {
-    Task<bool> AccessIfTargetUserIsSuperAdmin(int targetId, NpgsqlConnection connection);
+    Task<bool> AccessToTargetUser(
+        int targetId,
+        NpgsqlConnection connection,
+        bool protectSuperAdmin = false,
+        int? protectRole = null,
+        bool preventSelfAction = false);
 }

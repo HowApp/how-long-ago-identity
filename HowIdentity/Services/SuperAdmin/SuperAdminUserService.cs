@@ -1,6 +1,7 @@
 namespace HowIdentity.Services.SuperAdmin;
 
 using System.Text;
+using Common.Configurations;
 using Common.Constants;
 using Common.Extensions;
 using Common.ResultType;
@@ -8,22 +9,31 @@ using Dapper;
 using Data;
 using Duende.IdentityServer.Services;
 using Entity;
+using Microsoft.Extensions.Options;
+using Npgsql;
 using Pages.SuperAdmin.AppUsers;
+using TargetUser;
 
 public class SuperAdminUserService : ISuperAdminUserService
 {
     private readonly ILogger<SuperAdminUserService> _logger;
     private readonly DapperContext _dapper;
     private readonly ISessionManagementService _sessionManagementService;
+    private readonly ITargetUserService _targetUserService;
+    private readonly IOptions<AdminCredentials> _adminCredentials;
 
     public SuperAdminUserService(
         ILogger<SuperAdminUserService> logger,
         DapperContext dapper,
-        ISessionManagementService sessionManagementService)
+        ISessionManagementService sessionManagementService,
+        ITargetUserService targetUserService,
+        IOptions<AdminCredentials> adminCredentials)
     {
         _logger = logger;
         _dapper = dapper;
         _sessionManagementService = sessionManagementService;
+        _targetUserService = targetUserService;
+        _adminCredentials = adminCredentials;
     }
 
     public async Task<ResultGeneric<List<AppUserModel>>>  GetUsers()
@@ -48,6 +58,7 @@ LEFT JOIN (
     LEFT JOIN {nameof(ApplicationDbContext.Roles).ToSnake()} r on r.{nameof(HowRole.Id).ToSnake()} = ur.{nameof(HowUserRole.RoleId).ToSnake()}
     GROUP BY ur.{nameof(HowUserRole.UserId).ToSnake()}
 ) user_roles ON u.{nameof(HowUser.Id).ToSnake()} = user_roles.user_id
+WHERE u.{nameof(HowUser.Email).ToSnake()} NOT ILIKE '{_adminCredentials.Value.Email}'
 ";
             await using var connection = _dapper.InitConnection();
             var users = await connection.QueryAsync<AppUserModel>(query);
@@ -85,6 +96,7 @@ LEFT JOIN (
 ) user_roles ON u.{nameof(HowUser.Id).ToSnake()} = user_roles.user_id
 WHERE u.{nameof(HowUser.Id).ToSnake()} = @Id
     AND {nameof(HowUser.IsDeleted).ToSnake()} = FALSE
+    AND u.{nameof(HowUser.Email).ToSnake()} NOT ILIKE '{_adminCredentials.Value.Email}'
 LIMIT 1;
 ";
             
@@ -113,7 +125,14 @@ LIMIT 1;
     {
         try
         {
-            var result = await UpdateSuspendStatus(userId, true);
+            await using var connection = _dapper.InitConnection();
+            
+            if (!await _targetUserService.AccessToTargetUser(targetId: userId, connection: connection, protectSuperAdmin: true, preventSelfAction: true))
+            {
+                return ResultDefault.Fatality(nameof(DeleteUser), "User can not be suspended!");
+            }
+            
+            var result = await UpdateSuspendStatus(userId, true, connection);
 
             if (result)
             {
@@ -142,7 +161,14 @@ LIMIT 1;
     {
         try
         {
-            var result = await UpdateSuspendStatus(userId, false);
+            await using var connection = _dapper.InitConnection();
+            
+            if (!await _targetUserService.AccessToTargetUser(targetId: userId, connection: connection, protectSuperAdmin: true, preventSelfAction: true))
+            {
+                return ResultDefault.Fatality(nameof(DeleteUser), "User can not be re-suspended!");
+            }
+            
+            var result = await UpdateSuspendStatus(userId, false, connection);
             
             return result ? 
                 ResultDefault.Success() : 
@@ -155,9 +181,7 @@ LIMIT 1;
         }
     }
 
-    //TODO: add check of admin or super admin is target
-    //TODO do we need logout user????
-    public async Task<ResultDefault> UpdateUserRoles(int userId, (int RoleId, bool State)[] roles)
+    public async Task<ResultDefault> UpdateUserRoles(int userId, (int RoleId, bool State)[] roles, bool forceSessionRemoving = false)
     {
         try
         {
@@ -166,8 +190,15 @@ LIMIT 1;
                 return ResultDefault.Success();
             }
 
+            await using var connection = _dapper.InitConnection();
+
+            if (!await _targetUserService.AccessToTargetUser(targetId: userId, connection: connection, protectSuperAdmin: false, preventSelfAction: false))
+            {
+                return ResultDefault.Fatality(nameof(DeleteUser), "User can not edit roles!");
+            }
+
             var roleToAdd = roles.Where(r => r.State).Select(r => r.RoleId).ToArray();
-            var roleToDelete = roles.Where(r => !r.State).Select(r => r.RoleId).ToArray();
+            var roleToDelete = roles.Where(r => !r.State && r.RoleId != AppConstants.Role.SuperAdmin.Id).Select(r => r.RoleId).ToArray();
             var commandBuilder = new StringBuilder();
 
             if (roleToDelete.Any())
@@ -196,7 +227,6 @@ DO NOTHING;";
             }
 
             var command = commandBuilder.ToString();
-            await using var connection = _dapper.InitConnection();
 
             await connection.ExecuteAsync(
                 command, 
@@ -205,7 +235,19 @@ DO NOTHING;";
                     UserId = userId,
                     RoleIdToDelete = roleToDelete
                 });
-            
+
+            if (forceSessionRemoving)
+            {
+                await _sessionManagementService.RemoveSessionsAsync(new RemoveSessionsContext
+                {
+                    SubjectId = userId.ToString(),
+                    RemoveServerSideSession = true,
+                    SendBackchannelLogoutNotification = true,
+                    RevokeTokens = true,
+                    RevokeConsents = true
+                });
+            }
+
             return ResultDefault.Success();
         }
         catch (Exception e)
@@ -219,6 +261,13 @@ DO NOTHING;";
     {
         try
         {
+            await using var connection = _dapper.InitConnection();
+
+            if (!await _targetUserService.AccessToTargetUser(targetId: userId, connection: connection, protectSuperAdmin: true, preventSelfAction: true))
+            {
+                return ResultDefault.Fatality(nameof(DeleteUser), "User can not be deleted!");
+            }
+            
             var salt = "Deleted_" + Guid.NewGuid();
             var command = $@"
 UPDATE {nameof(ApplicationDbContext.Users).ToSnake()}
@@ -230,17 +279,10 @@ SET
     {nameof(HowUser.IsSuspended).ToSnake()} = true,
     {nameof(HowUser.IsDeleted).ToSnake()} = true
 WHERE {nameof(HowUser.Id).ToSnake()} = @Id 
-    AND NOT EXISTS(
-        SELECT 1
-        FROM {nameof(ApplicationDbContext.UserRoles).ToSnake()} ur
-        WHERE ur.{nameof(HowUserRole.UserId).ToSnake()} = @Id 
-            AND ur.{nameof(HowUserRole.RoleId).ToSnake()} IN ({AppConstants.Role.SuperAdmin.Id}, {AppConstants.Role.Admin.Id})
-    )
     AND {nameof(HowUser.IsDeleted).ToSnake()} = FALSE
 RETURNING *;
 ";
-            
-            await using var connection = _dapper.InitConnection();
+
             var result = await connection.ExecuteAsync(
                 command, 
                 new
@@ -277,7 +319,8 @@ RETURNING *;
 
     private async Task<bool> UpdateSuspendStatus(
         int userId,
-        bool suspend)
+        bool suspend,
+        NpgsqlConnection connection)
     {
         var command = $@"
 UPDATE {nameof(ApplicationDbContext.Users).ToSnake()}
@@ -293,8 +336,7 @@ WHERE {nameof(HowUser.Id).ToSnake()} = @Id
     AND {nameof(HowUser.IsDeleted).ToSnake()} = FALSE
 RETURNING *;
 ";
-            
-        await using var connection = _dapper.InitConnection();
+
         var result = await connection.ExecuteAsync(
             command,
             new

@@ -1,6 +1,7 @@
 namespace HowIdentity.Services.CurrentUser;
 
 using System.Security.Claims;
+using IdentityModel;
 
 public class CurrentUserService : ICurrentUserService
 {
@@ -15,7 +16,12 @@ public class CurrentUserService : ICurrentUserService
     {
         get
         {
-            if (!Int32.TryParse(_httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier), out var userId))
+            if (_httpContextAccessor.HttpContext == null)
+            {
+                throw new NullReferenceException("HttpContext is null");
+            }
+            
+            if (!Int32.TryParse(_httpContextAccessor.HttpContext.User.FindFirstValue(JwtClaimTypes.Subject), out var userId))
             {
                 userId = -1;
             }

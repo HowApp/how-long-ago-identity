@@ -17,6 +17,8 @@ public class Index : PageModel
     public RoleUpdateModel[] RoleOptionsUpdate { get; set; } = [];
     [BindProperty]
     public int UserId { get; set; }
+    [BindProperty]
+    public bool ForceSessionRemoving { get; set; }
     
     public AppUserModel AppUser { get; set; } = default!;
     public string ErrorsString { get; set; } = default!;
@@ -61,7 +63,8 @@ public class Index : PageModel
     {
         var result = await _superAdminUserService.UpdateUserRoles(
             UserId, 
-            RoleOptionsUpdate.Select(o => (o.Id, o.Apply)).ToArray());
+            RoleOptionsUpdate.Select(o => (o.Id, o.Apply)).ToArray(),
+            ForceSessionRemoving);
 
         if (!result.IsSuccess)
         {
