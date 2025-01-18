@@ -61,7 +61,7 @@ public static class Config
                         "scope.how-api",
                     },
                     UserClaims = { JwtClaimTypes.Role },
-                    ApiSecrets = { new Secret(resourceHowApi.Secret.Sha256()) } // todo load from secreet
+                    ApiSecrets = { new Secret(resourceHowApi.Secret.Sha256()) }
                 });
         }
 
