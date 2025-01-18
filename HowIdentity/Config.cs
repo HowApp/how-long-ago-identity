@@ -1,5 +1,6 @@
 ﻿namespace HowIdentity;
 
+using Common.Configurations;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using IdentityModel;
@@ -23,13 +24,18 @@ public static class Config
     public static IEnumerable<ApiScope> ApiScopes =>
         new ApiScope[]
         {
-            new ApiScope("scope.web", displayName: "Web Client"),
-            new ApiScope("scope.api-test", displayName:"Test API")
+            new ApiScope("scope.how-api", displayName:"How API"),
+            new ApiScope("scope.api-test", displayName:"Test API") // api for testing
         };
 
-    public static IEnumerable<ApiResource> ApiResources =>
-        new ApiResource[]
+    public static IEnumerable<ApiResource> ApiResources(IConfiguration configuration)
+    {
+        var identityServerConfiguration = new IdentityServerConfiguration();
+        configuration.Bind(nameof(IdentityServerConfiguration), identityServerConfiguration);
+        
+        var resources = new List<ApiResource>()
         {
+            // api for testing
             // name of api resource must correspond to ClientId from api
             new ApiResource("resource.api-test", "API test resource")
             {
@@ -42,16 +48,37 @@ public static class Config
             }
         };
 
+        var resourceHowApi =
+            identityServerConfiguration.ApiResources.FirstOrDefault(r => r.ClientId == "resource.how-api");
+
+        if (resourceHowApi is not null)
+        {
+            resources.Add(
+                new ApiResource("resource.how-api", "How API resource")
+                {
+                    Scopes =
+                    {
+                        "scope.how-api",
+                    },
+                    UserClaims = { JwtClaimTypes.Role },
+                    ApiSecrets = { new Secret(resourceHowApi.Secret.Sha256()) } // todo load from secreet
+                });
+        }
+
+        return resources;
+    }
+
     public static IEnumerable<Client> Clients =>
         new Client[]
         {
             // interactive client using code flow + pkce
             new Client
             {
-                ClientId = "how-web-app",
+                ClientId = "how-web-client",
                 RequireClientSecret = false,
                 RequirePkce = true,
 
+                AccessTokenType = AccessTokenType.Reference,
                 AllowedGrantTypes = GrantTypes.Code,
 
                 RedirectUris = { "https://localhost:7560/authentication/login-callback" },
@@ -61,8 +88,12 @@ public static class Config
                 AllowOfflineAccess = true,
                 AllowedScopes = { 
                     IdentityServerConstants.StandardScopes.OpenId,
-                    IdentityServerConstants.StandardScopes.Profile
-                }
+                    IdentityServerConstants.StandardScopes.Profile,
+                    "scope.how-api",
+                    "roles"
+                },
+                
+                AlwaysIncludeUserClaimsInIdToken = true,
             },
             
             // blazor standalone web app testing

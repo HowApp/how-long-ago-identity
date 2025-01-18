@@ -207,6 +207,8 @@ internal static class HostingExtensions
             
             var context = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
             context.Database.Migrate();
+            
+            var configuration = serviceScope.ServiceProvider.GetRequiredService<IConfiguration>();
 
             if (!context.Clients.Any())
             {
@@ -237,7 +239,7 @@ internal static class HostingExtensions
 
             if (!context.ApiResources.Any())
             {
-                foreach (var resource in Config.ApiResources)
+                foreach (var resource in Config.ApiResources(configuration))
                 {
                     context.ApiResources.Add(resource.ToEntity());
                 }
