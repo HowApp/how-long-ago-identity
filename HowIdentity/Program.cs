@@ -36,8 +36,8 @@ public static class Program
             if (args.Contains("/seed"))
             {
                 Log.Information("Seeding database...");
-                SeedData.EnsureSeedData(app);
                 SeedData.EnsureSeedAdmin(app);
+                SeedData.EnsureSeedData(app);
                 Log.Information("Done seeding database. Exiting...");
                 return;
             }

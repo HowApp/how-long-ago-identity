@@ -99,8 +99,6 @@ public class Index : PageModel
         {
             var user = new HowUser
             {
-                FirstName = Input.Name,
-                LastName = string.Empty,
                 UserName = Input.UserName,
                 Email = Input.Email,
                 EmailConfirmed = true

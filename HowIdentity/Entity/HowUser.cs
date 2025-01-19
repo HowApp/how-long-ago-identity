@@ -7,9 +7,6 @@ using Microsoft.AspNetCore.Identity;
 
 public class HowUser : IdentityUser<int>
 {
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-
     public bool IsDeleted { get; set; }
     public bool IsSuspended{ get; set; }
     public virtual ICollection<HowUserRole> UserRoles {get; set;}

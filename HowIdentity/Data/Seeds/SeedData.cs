@@ -17,9 +17,6 @@ public class SeedData
     {
         using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
         {
-            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            context.Database.Migrate();
-
             var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<HowUser>>();
             var alice = userMgr.FindByEmailAsync("AliceSmith@email.com").Result;
             if (alice == null)
@@ -108,6 +105,9 @@ public class SeedData
     {
         using (var scope = app.Services.GetRequiredService<IServiceScopeFactory>().CreateScope())
         {
+            var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            context.Database.Migrate();
+
             var userManager = scope.ServiceProvider.GetService<UserManager<HowUser>>();
             var adminOptions = scope.ServiceProvider.GetService<IOptions<AdminCredentials>>();
             
@@ -119,8 +119,6 @@ public class SeedData
             {
                 user = new HowUser
                 {
-                    FirstName = "SuperAdmin",
-                    LastName = string.Empty,
                     UserName = adminCredentials.Name,
                     Email = adminCredentials.Email,
                     EmailConfirmed = true,
