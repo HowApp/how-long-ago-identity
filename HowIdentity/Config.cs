@@ -93,7 +93,36 @@ public static class Config
                     "roles"
                 },
                 
-                AlwaysIncludeUserClaimsInIdToken = true,
+                AlwaysIncludeUserClaimsInIdToken = true
+            },
+            
+            // swagger client for api
+            new Client
+            {
+                ClientId = "how-api-swagger-client",
+                ClientName = "How API Swagger Client",
+                ClientSecrets =
+                {
+                    new Secret("secret".Sha256())
+                },
+                RequireClientSecret = true,
+                RequirePkce = true,
+
+                AccessTokenType = AccessTokenType.Jwt,
+                AllowedGrantTypes = GrantTypes.Code,
+
+                RedirectUris = { "https://localhost:7060/swagger/oauth2-redirect.html" },
+                AllowedCorsOrigins = { "https://localhost:7060" },
+
+                AllowOfflineAccess = true,
+                AllowedScopes = { 
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile,
+                    "scope.how-api",
+                    "roles"
+                },
+                
+                AlwaysIncludeUserClaimsInIdToken = true
             },
             
             // blazor standalone web app testing
@@ -118,7 +147,7 @@ public static class Config
                     "roles"
                 },
 
-                AlwaysIncludeUserClaimsInIdToken = true,
+                AlwaysIncludeUserClaimsInIdToken = true
             }
         };
 }
