@@ -2,6 +2,7 @@ namespace HowIdentity;
 
 using Common.Configurations;
 using Common.Constants;
+using Common.Extensions;
 using Duende.IdentityServer;
 using Data;
 using Entity;
@@ -212,16 +213,10 @@ internal static class HostingExtensions
 
             // update Clients
             var existingClients = context.Clients.ToList();
-            var configClients = Config.Clients(configuration);
+            var configClients = Config.Clients(configuration).Select(c => c.ToEntity());
 
-            var clientsToRemove = existingClients
-                .Where(c => configClients.All(cl => cl.ClientId != c.ClientId))
-                .ToList();
+            var (clientsToRemove, clientsToAdd) = existingClients.CompareByKey(configClients, c => c.ClientId);
             
-            var clientsToAdd = configClients
-                .Where(c => existingClients.All(cl => cl.ClientId != c.ClientId))
-                .ToList();
-
             if (clientsToRemove.Any())
             {
                 context.Clients.RemoveRange(clientsToRemove);
@@ -229,7 +224,7 @@ internal static class HostingExtensions
 
             if (clientsToAdd.Any())
             {
-                context.Clients.AddRange(clientsToAdd.Select(c => c.ToEntity()));
+                context.Clients.AddRange(clientsToAdd);
             }
 
             context.SaveChanges();
