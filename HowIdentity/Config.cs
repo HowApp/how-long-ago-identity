@@ -79,6 +79,7 @@ public static class Config
             new Client
             {
                 ClientId = "how-web-client",
+                ClientName = "How Client blazor wasm",
                 RequireClientSecret = false,
                 RequirePkce = true,
 
@@ -104,6 +105,7 @@ public static class Config
             new Client
             {
                 ClientId = "BlazorTest",
+                ClientName = "Test Client",
                 RequireClientSecret = false,
                 RequirePkce = true,
 

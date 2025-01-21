@@ -215,7 +215,8 @@ internal static class HostingExtensions
             var existingClients = context.Clients.ToList();
             var configClients = Config.Clients(configuration).Select(c => c.ToEntity());
 
-            var (clientsToRemove, clientsToAdd) = existingClients.CompareByKey(configClients, c => c.ClientId);
+            var (clientsToRemove, clientsToAdd) = 
+                existingClients.CompareByKey(configClients, c => c.ClientId);
             
             if (clientsToRemove.Any())
             {
@@ -227,37 +228,58 @@ internal static class HostingExtensions
                 context.Clients.AddRange(clientsToAdd);
             }
 
-            context.SaveChanges();
-            
             // update Identity Resources
-            if (!context.IdentityResources.Any())
+            var existingIdentityResources = context.IdentityResources.ToList();
+            var configIdentityResources = Config.IdentityResources.Select(c => c.ToEntity());
+            
+            var (identityResourcesToRemove, identityResourcesToAdd) = 
+                existingIdentityResources.CompareByKey(configIdentityResources, i => i.Name);
+            
+            if (identityResourcesToRemove.Any())
             {
-                foreach (var resource in Config.IdentityResources)
-                {
-                    context.IdentityResources.Add(resource.ToEntity());
-                }
-                context.SaveChanges();
+                context.IdentityResources.RemoveRange(identityResourcesToRemove);
+            }
+
+            if (identityResourcesToAdd.Any())
+            {
+                context.IdentityResources.AddRange(identityResourcesToAdd);
             }
 
             // update Api Scopes
-            if (!context.ApiScopes.Any())
+            var existingApiScopes = context.ApiScopes.ToList();
+            var configApiScopes = Config.ApiScopes.Select(c => c.ToEntity());
+            
+            var (apiScopesToRemove, apiScopesToAdd) = 
+                existingApiScopes.CompareByKey(configApiScopes, i => i.Name);
+            
+            if (apiScopesToRemove.Any())
             {
-                foreach (var scope in Config.ApiScopes)
-                {
-                    context.ApiScopes.Add(scope.ToEntity());
-                }
-                context.SaveChanges();
+                context.ApiScopes.RemoveRange(apiScopesToRemove);
+            }
+
+            if (apiScopesToAdd.Any())
+            {
+                context.ApiScopes.AddRange(apiScopesToAdd);
             }
 
             // update Api Resources
-            if (!context.ApiResources.Any())
+            var existingApiResources = context.ApiResources.ToList();
+            var configApiResources = Config.ApiResources(configuration).Select(c => c.ToEntity());
+            
+            var (apiResourcesToRemove, apiResourcesToAdd) = 
+                existingApiResources.CompareByKey(configApiResources, i => i.Name);
+            
+            if (apiResourcesToRemove.Any())
             {
-                foreach (var resource in Config.ApiResources(configuration))
-                {
-                    context.ApiResources.Add(resource.ToEntity());
-                }
-                context.SaveChanges();
+                context.ApiResources.RemoveRange(apiResourcesToRemove);
             }
+
+            if (apiResourcesToAdd.Any())
+            {
+                context.ApiResources.AddRange(apiResourcesToAdd);
+            }
+
+            context.SaveChanges();
         }
     }
 
