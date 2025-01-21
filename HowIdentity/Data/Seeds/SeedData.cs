@@ -4,6 +4,7 @@ using Common.Constants;
 using Serilog;
 using System.Security.Claims;
 using Common.Configurations;
+using Common.Enums;
 using IdentityModel;
 using Data;
 using Entity;
@@ -26,6 +27,7 @@ public class SeedData
                     UserName = "alice",
                     Email = "AliceSmith@email.com",
                     EmailConfirmed = true,
+                    ExistInServices = new [] { MicroServicesEnum.IdentityServer }
                 };
                 var result = userMgr.CreateAsync(alice, "Pass123$").Result;
                 if (!result.Succeeded)
@@ -66,6 +68,7 @@ public class SeedData
                     UserName = "bob",
                     Email = "BobSmith@email.com",
                     EmailConfirmed = true,
+                    ExistInServices = new [] { MicroServicesEnum.IdentityServer}
                 };
                 var result = userMgr.CreateAsync(bob, "Pass123$").Result;
                 if (!result.Succeeded)
@@ -122,6 +125,7 @@ public class SeedData
                     UserName = adminCredentials.Name,
                     Email = adminCredentials.Email,
                     EmailConfirmed = true,
+                    ExistInServices = new [] { MicroServicesEnum.IdentityServer, MicroServicesEnum.MainApi },
                     UserRoles = new List<HowUserRole>
                     {
                         new ()

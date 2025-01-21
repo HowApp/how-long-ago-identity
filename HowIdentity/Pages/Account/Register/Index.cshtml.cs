@@ -4,6 +4,7 @@
 namespace HowIdentity.Pages.Account.Register;
 
 using Common.Constants;
+using Common.Enums;
 using Pages;
 using Microsoft.AspNetCore.Identity;
 using Entity;
@@ -101,7 +102,8 @@ public class Index : PageModel
             {
                 UserName = Input.UserName,
                 Email = Input.Email,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                ExistInServices = new [] { MicroServicesEnum.IdentityServer }
             };
             var userCreateResult = await _userManager.CreateAsync(user, Input.Password);
 

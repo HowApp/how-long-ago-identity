@@ -1,5 +1,6 @@
 namespace HowIdentity.Data.EntityConfiguration;
 
+using Common.Enums;
 using Entity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -11,5 +12,9 @@ public class HowUserConfiguration : IEntityTypeConfiguration<HowUser>
         builder.HasIndex(u => u.Email).IsUnique();
         builder.HasIndex(u => u.IsDeleted);
         builder.HasIndex(u => u.IsSuspended);
+        
+        builder.Property(u => u.ExistInServices).HasConversion<int>();
+        builder.Property(u => u.ExistInServices).IsRequired();
+        builder.Property(u => u.ExistInServices).HasDefaultValue(new [] { MicroServicesEnum.IdentityServer });
     }
 }
