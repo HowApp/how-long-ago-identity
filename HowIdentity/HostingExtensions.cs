@@ -210,15 +210,31 @@ internal static class HostingExtensions
             
             var configuration = serviceScope.ServiceProvider.GetRequiredService<IConfiguration>();
 
-            if (!context.Clients.Any())
+            // update Clients
+            var existingClients = context.Clients.ToList();
+            var configClients = Config.Clients(configuration);
+
+            var clientsToRemove = existingClients
+                .Where(c => configClients.All(cl => cl.ClientId != c.ClientId))
+                .ToList();
+            
+            var clientsToAdd = configClients
+                .Where(c => existingClients.All(cl => cl.ClientId != c.ClientId))
+                .ToList();
+
+            if (clientsToRemove.Any())
             {
-                foreach (var client in Config.Clients)
-                {
-                    context.Clients.Add(client.ToEntity());
-                }
-                context.SaveChanges();
+                context.Clients.RemoveRange(clientsToRemove);
             }
 
+            if (clientsToAdd.Any())
+            {
+                context.Clients.AddRange(clientsToAdd.Select(c => c.ToEntity()));
+            }
+
+            context.SaveChanges();
+            
+            // update Identity Resources
             if (!context.IdentityResources.Any())
             {
                 foreach (var resource in Config.IdentityResources)
@@ -228,6 +244,7 @@ internal static class HostingExtensions
                 context.SaveChanges();
             }
 
+            // update Api Scopes
             if (!context.ApiScopes.Any())
             {
                 foreach (var scope in Config.ApiScopes)
@@ -237,6 +254,7 @@ internal static class HostingExtensions
                 context.SaveChanges();
             }
 
+            // update Api Resources
             if (!context.ApiResources.Any())
             {
                 foreach (var resource in Config.ApiResources(configuration))

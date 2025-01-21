@@ -68,8 +68,12 @@ public static class Config
         return resources;
     }
 
-    public static IEnumerable<Client> Clients =>
-        new Client[]
+    public static IEnumerable<Client> Clients(IConfiguration configuration)
+    {
+        var identityServerConfiguration = new IdentityServerConfiguration();
+        configuration.Bind(nameof(IdentityServerConfiguration), identityServerConfiguration);
+        
+        var clients = new List<Client>()
         {
             // interactive client using code flow + pkce
             new Client
@@ -84,35 +88,6 @@ public static class Config
                 RedirectUris = { "https://localhost:7560/authentication/login-callback" },
                 PostLogoutRedirectUris = { "https://localhost:7560/authentication/logout-callback" },
                 AllowedCorsOrigins = { "https://localhost:7560" },
-
-                AllowOfflineAccess = true,
-                AllowedScopes = { 
-                    IdentityServerConstants.StandardScopes.OpenId,
-                    IdentityServerConstants.StandardScopes.Profile,
-                    "scope.how-api",
-                    "roles"
-                },
-                
-                AlwaysIncludeUserClaimsInIdToken = true
-            },
-            
-            // swagger client for api
-            new Client
-            {
-                ClientId = "how-api-swagger-client",
-                ClientName = "How API Swagger Client",
-                ClientSecrets =
-                {
-                    new Secret("secret".Sha256())
-                },
-                RequireClientSecret = true,
-                RequirePkce = true,
-
-                AccessTokenType = AccessTokenType.Jwt,
-                AllowedGrantTypes = GrantTypes.Code,
-
-                RedirectUris = { "https://localhost:7060/swagger/oauth2-redirect.html" },
-                AllowedCorsOrigins = { "https://localhost:7060" },
 
                 AllowOfflineAccess = true,
                 AllowedScopes = { 
@@ -150,4 +125,43 @@ public static class Config
                 AlwaysIncludeUserClaimsInIdToken = true
             }
         };
+        
+        // swagger client for api
+        var clientHowApiSwagger =
+            identityServerConfiguration.Clients.FirstOrDefault(r => r.ClientId == "how-api-swagger-client");
+
+        if (clientHowApiSwagger is not null)
+        {
+            clients.Add(
+                new Client
+                {
+                    ClientId = "how-api-swagger-client",
+                    ClientName = "How API Swagger Client",
+                    ClientSecrets =
+                    {
+                        new Secret(clientHowApiSwagger.Secret.Sha256())
+                    },
+                    RequireClientSecret = true,
+                    RequirePkce = true,
+        
+                    AccessTokenType = AccessTokenType.Jwt,
+                    AllowedGrantTypes = GrantTypes.Code,
+        
+                    RedirectUris = { "https://localhost:7060/swagger/oauth2-redirect.html" },
+                    AllowedCorsOrigins = { "https://localhost:7060" },
+        
+                    AllowOfflineAccess = true,
+                    AllowedScopes = { 
+                        IdentityServerConstants.StandardScopes.OpenId,
+                        IdentityServerConstants.StandardScopes.Profile,
+                        "scope.how-api",
+                        "roles"
+                    },
+                
+                    AlwaysIncludeUserClaimsInIdToken = true
+                });
+        }
+        
+        return clients;
+    }
 }
