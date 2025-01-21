@@ -12,6 +12,7 @@ using Serilog;
 using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Mappers;
 using IdentityModel;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
 using Services;
@@ -196,6 +197,42 @@ internal static class HostingExtensions
         builder.Services.AddTransient<ISuperAdminUserService, SuperAdminUserService>();
         builder.Services.AddTransient<ICurrentUserService, CurrentUserService>();
         builder.Services.AddTransient<ITargetUserService, TargetUserService>();
+        return builder;
+    }
+
+    public static WebApplicationBuilder ConfigureMassTransit(this WebApplicationBuilder builder)
+    {
+        var rabbitMq = new RabbitMqConfiguration();
+        builder.Configuration.Bind(nameof(RabbitMqConfiguration), rabbitMq);
+        
+        builder.Services.AddMassTransit(x =>
+        {
+            x.UsingRabbitMq((context, config) =>
+            {
+                config.Host(rabbitMq.Host, "/", host =>
+                {
+                    host.Username(rabbitMq.User);
+                    host.Password(rabbitMq.Password);
+                });
+                config.ConfigureEndpoints(context);
+            });
+        });
+
+        builder.Services.AddOptions<MassTransitHostOptions>()
+            .Configure(options =>
+            {
+                options.WaitUntilStarted = true;
+                options.StartTimeout = TimeSpan.FromSeconds(15);
+                options.StopTimeout = TimeSpan.FromSeconds(30);
+            });
+        
+        builder.Services.AddOptions<HostOptions>()
+            .Configure(options =>
+            {
+                options.StartupTimeout = TimeSpan.FromSeconds(30);
+                options.ShutdownTimeout = TimeSpan.FromSeconds(30);
+            });
+        
         return builder;
     }
 

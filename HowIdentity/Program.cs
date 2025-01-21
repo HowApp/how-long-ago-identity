@@ -28,6 +28,7 @@ public static class Program
                 .ConfigureCors()
                 .ConfigureDataAccess()
                 .ConfigureCustomService()
+                .ConfigureMassTransit()
                 .ConfigureServices()
                 .ConfigurePipeline();
 

@@ -11,6 +11,7 @@
         <PackageReference Include="Dapper" Version="2.1.35" />
         <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="7.0.8" />
         <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.0.8" />
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.4" />
 
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.3"/>
 
@@ -29,5 +30,7 @@
 
     <ItemGroup>
       <Folder Include="Data\Migrations\" />
+      <Folder Include="Infrastructure\MassTransit\Consumer\" />
+      <Folder Include="Infrastructure\MassTransit\Producer\" />
     </ItemGroup>
 </Project>

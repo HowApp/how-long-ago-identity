@@ -5,12 +5,14 @@ namespace HowIdentity.Pages.Account.Register;
 
 using Common.Constants;
 using Common.Enums;
+using Common.MassTransitContracts.Producer;
 using Pages;
 using Microsoft.AspNetCore.Identity;
 using Entity;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -22,17 +24,20 @@ public class Index : PageModel
     private readonly UserManager<HowUser> _userManager;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly ILogger<Index> _logger;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     [BindProperty]
     public InputModel Input { get; set; } = default!;
 
     public Index(
         IIdentityServerInteractionService interaction,
-        UserManager<HowUser> userManager, ILogger<Index> logger)
+        UserManager<HowUser> userManager, ILogger<Index> logger,
+        IPublishEndpoint publishEndpoint)
     {
         _interaction = interaction;
         _userManager = userManager;
         _logger = logger;
+        _publishEndpoint = publishEndpoint;
     }
 
     public IActionResult OnGet(string? returnUrl)
@@ -128,6 +133,12 @@ public class Index : PageModel
                 
                 return Page();
             }
+
+            await _publishEndpoint.Publish<UserRegisterMessage>(
+                new 
+                {
+                    UserIds = user.Id
+                });
 
             // issue authentication cookie with subject ID and username
             var isuser = new IdentityServerUser(user.Id.ToString())
