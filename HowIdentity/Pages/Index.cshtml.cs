@@ -8,11 +8,16 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace HowIdentity.Pages.Home;
 
+using Common.MassTransitContracts.Producer;
+using MassTransit;
+
 [AllowAnonymous]
 public class Index : PageModel
 {
-    public Index(IdentityServerLicense? license = null)
+    private readonly IPublishEndpoint _publishEndpoint;
+    public Index(IPublishEndpoint publishEndpoint, IdentityServerLicense? license = null)
     {
+        _publishEndpoint = publishEndpoint;
         License = license;
     }
 
@@ -25,4 +30,13 @@ public class Index : PageModel
     }
 
     public IdentityServerLicense? License { get; }
+
+    public async Task OnPostSend()
+    {
+        await _publishEndpoint.Publish<UserRegisterMessage>(
+            new 
+            {
+                UserIds = 2
+            });
+    }
 }
