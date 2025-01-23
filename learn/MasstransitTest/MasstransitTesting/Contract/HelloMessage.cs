@@ -1,4 +1,4 @@
-namespace Producer.Contract;
+﻿namespace Contract;
 
 public class HelloMessage
 {
