@@ -1,4 +1,3 @@
-using System.Reflection;
 using Contract;
 using MassTransit;
 
@@ -11,6 +10,8 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddMassTransit(x =>
 {
+    // x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("dev", false));
+    
     x.UsingRabbitMq((context, config) =>
     {
         config.Host("localhost", "/", host =>
@@ -18,7 +19,6 @@ builder.Services.AddMassTransit(x =>
             host.Username("guest");
             host.Password("guest");
         });
-        // config.ConfigureEndpoints(context);
     });
 });
 

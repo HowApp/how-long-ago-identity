@@ -1,4 +1,3 @@
-using System.Reflection;
 using Consumer.Consumers;
 using MassTransit;
 
@@ -13,9 +12,9 @@ builder.Services.AddMassTransit(x =>
 {
     x.AddConsumer<HelloMessageConsumer, HelloMessageConsumerDefinition>();
 
-    // var entryAssembly = Assembly.GetEntryAssembly();
-    // x.AddConsumers(entryAssembly);
-    
+    // endpoint name formater work only when do not configure queue name in ReceiveEndpoint or in Definition of consumer
+    // x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("dev", false));
+
     x.UsingRabbitMq((context, config) =>
     {
         config.Host("localhost", "/", host =>
@@ -24,7 +23,7 @@ builder.Services.AddMassTransit(x =>
             host.Password("guest");
         });
 
-        // config.ConfigureEndpoints(context);
+        config.ConfigureEndpoints(context);
 
         config.ReceiveEndpoint("sample-queue", e =>
         {
