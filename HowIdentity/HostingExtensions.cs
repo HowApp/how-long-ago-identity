@@ -214,9 +214,6 @@ internal static class HostingExtensions
                     host.Username(rabbitMq.User);
                     host.Password(rabbitMq.Password);
                 });
-                config.ConfigureEndpoints(context);
-                config.ConfigureEndpoints(context, new KebabCaseEndpointNameFormatter("dev", false));
-                config.UseMessageRetry(retry => { retry.Interval(3, TimeSpan.FromSeconds(5)); });
             });
         });
 

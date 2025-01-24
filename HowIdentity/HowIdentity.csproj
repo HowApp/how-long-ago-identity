@@ -13,16 +13,11 @@
         <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.0.8" />
         <PackageReference Include="HowCommon" Version="1.0.1" />
         <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.4" />
-
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.3"/>
-
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
-
         <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="8.0.2" />
-
         <PackageReference Include="Npgsql.NodaTime" Version="8.0.2" />
         <PackageReference Include="Serilog.AspNetCore" Version="8.0.0"/>
-
         <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="8.0.3"/>
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.3"/>
         <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.3"/>
@@ -31,7 +26,7 @@
 
     <ItemGroup>
       <Folder Include="Data\Migrations\" />
-      <Folder Include="Infrastructure\MassTransit\Consumer\" />
-      <Folder Include="Infrastructure\MassTransit\Producer\" />
+      <Folder Include="Infrastructure\Processing\Consumer\" />
+      <Folder Include="Infrastructure\Processing\Producer\" />
     </ItemGroup>
 </Project>

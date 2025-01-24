@@ -5,13 +5,13 @@ namespace HowIdentity.Pages.Account.Register;
 
 using Common.Constants;
 using Common.Enums;
-using Common.MassTransitContracts.Producer;
 using Pages;
 using Microsoft.AspNetCore.Identity;
 using Entity;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
+using HowCommon.MassTransitContract;
 using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -134,10 +134,11 @@ public class Index : PageModel
                 return Page();
             }
 
+            // send event ro create record on main api
             await _publishEndpoint.Publish<UserRegisterMessage>(
-                new 
+                new UserRegisterMessage
                 {
-                    UserIds = user.Id
+                    UserId = user.Id
                 });
 
             // issue authentication cookie with subject ID and username
