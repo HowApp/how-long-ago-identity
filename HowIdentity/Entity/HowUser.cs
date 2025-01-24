@@ -3,7 +3,7 @@
 
 namespace HowIdentity.Entity;
 
-using Common.Enums;
+using HowCommon.Enums;
 using Microsoft.AspNetCore.Identity;
 
 public class HowUser : IdentityUser<int>

@@ -4,10 +4,10 @@ using Common.Constants;
 using Serilog;
 using System.Security.Claims;
 using Common.Configurations;
-using Common.Enums;
 using IdentityModel;
 using Data;
 using Entity;
+using HowCommon.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -47,7 +47,7 @@ public class SeedData
                     throw new Exception(result.Errors.First().Description);
                 }
                 
-                var addRole = userMgr.AddToRoleAsync(alice, AppConstants.Role.User.Name).Result;
+                var addRole = userMgr.AddToRoleAsync(alice, IdentityRoleConstant.Role.User.Name).Result;
                 if (!addRole.Succeeded)
                 {
                     throw new Exception(addRole.Errors.First().Description);
@@ -89,7 +89,7 @@ public class SeedData
                     throw new Exception(result.Errors.First().Description);
                 }
                 
-                var addRole = userMgr.AddToRoleAsync(bob, AppConstants.Role.User.Name).Result;
+                var addRole = userMgr.AddToRoleAsync(bob, IdentityRoleConstant.Role.User.Name).Result;
                 if (!addRole.Succeeded)
                 {
                     throw new Exception(addRole.Errors.First().Description);
@@ -130,7 +130,7 @@ public class SeedData
                     {
                         new ()
                         {
-                            RoleId = AppConstants.Role.SuperAdmin.Id
+                            RoleId = IdentityRoleConstant.Role.SuperAdmin.Id
                         }
                     }
                 };

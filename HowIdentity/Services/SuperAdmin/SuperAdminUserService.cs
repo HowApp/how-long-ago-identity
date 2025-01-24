@@ -3,12 +3,12 @@ namespace HowIdentity.Services.SuperAdmin;
 using System.Text;
 using Common.Configurations;
 using Common.Constants;
-using Common.Extensions;
 using Common.ResultType;
 using Dapper;
 using Data;
 using Duende.IdentityServer.Services;
 using Entity;
+using HowCommon.Extensions;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using Pages.SuperAdmin.AppUsers;
@@ -198,7 +198,7 @@ LIMIT 1;
             }
 
             var roleToAdd = roles.Where(r => r.State).Select(r => r.RoleId).ToArray();
-            var roleToDelete = roles.Where(r => !r.State && r.RoleId != AppConstants.Role.SuperAdmin.Id).Select(r => r.RoleId).ToArray();
+            var roleToDelete = roles.Where(r => !r.State && r.RoleId != IdentityRoleConstant.Role.SuperAdmin.Id).Select(r => r.RoleId).ToArray();
             var commandBuilder = new StringBuilder();
 
             if (roleToDelete.Any())
@@ -331,7 +331,7 @@ WHERE {nameof(HowUser.Id).ToSnake()} = @Id
             SELECT 1
             FROM {nameof(ApplicationDbContext.UserRoles).ToSnake()} ur
             WHERE ur.{nameof(HowUserRole.UserId).ToSnake()} = @Id 
-                AND ur.{nameof(HowUserRole.RoleId).ToSnake()} IN ({AppConstants.Role.SuperAdmin.Id}, {AppConstants.Role.Admin.Id})
+                AND ur.{nameof(HowUserRole.RoleId).ToSnake()} IN ({IdentityRoleConstant.Role.SuperAdmin.Id}, {IdentityRoleConstant.Role.Admin.Id})
         )
     AND {nameof(HowUser.IsDeleted).ToSnake()} = FALSE
 RETURNING *;

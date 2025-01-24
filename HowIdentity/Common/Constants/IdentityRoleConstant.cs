@@ -1,8 +1,7 @@
 namespace HowIdentity.Common.Constants;
 
-public static class AppConstants
+public class IdentityRoleConstant
 {
-    public const string CorsPolicy = "HowIdentityCors";
     public struct Role
     {
         public struct User

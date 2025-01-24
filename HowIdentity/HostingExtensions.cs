@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Mappers;
+using HowCommon.Configurations;
 using IdentityModel;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -29,7 +30,7 @@ internal static class HostingExtensions
         
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy(AppConstants.CorsPolicy, appBuilder =>
+            options.AddPolicy(IdentityAppConstants.CorsPolicy, appBuilder =>
             {
                 appBuilder.WithOrigins(baseAppSettings.AllowedOrigins)
                     .AllowAnyMethod()
@@ -170,7 +171,7 @@ internal static class HostingExtensions
         app.UseStaticFiles();
         app.UseRouting();
 
-        app.UseCors(AppConstants.CorsPolicy);
+        app.UseCors(IdentityAppConstants.CorsPolicy);
 
         app.UseIdentityServer();
         app.UseAuthorization();
@@ -332,7 +333,7 @@ internal static class HostingExtensions
         {
             options.AddPolicy("super-admin", policy =>
             {
-                policy.RequireRole(AppConstants.Role.SuperAdmin.Name);
+                policy.RequireRole(IdentityRoleConstant.Role.SuperAdmin.Name);
                 policy.RequireAuthenticatedUser();
             });
         });

@@ -40,7 +40,7 @@
 </div>
 <div class="nav-page">
     <nav class="navbar navbar-light navbar-custom">
-        @if (Context.User!.IsInRole(AppConstants.Role.SuperAdmin.Name))
+        @if (Context.User!.IsInRole(IdentityRoleConstant.Role.SuperAdmin.Name))
         {
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">

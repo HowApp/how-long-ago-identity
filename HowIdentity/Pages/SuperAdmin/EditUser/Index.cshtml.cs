@@ -42,7 +42,7 @@ public class Index : PageModel
         if (userFromDb.IsSuccess)
         {
             AppUser = userFromDb.Value();
-            RoleOptions = AppConstants.Role.RoleList()
+            RoleOptions = IdentityRoleConstant.Role.RoleList()
                 .Select(r => new RoleModel
                 {
                     Id = r.Id,

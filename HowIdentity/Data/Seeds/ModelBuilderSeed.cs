@@ -12,23 +12,23 @@ public static class ModelBuilderSeed
         {
             new ()
             {
-                Id = AppConstants.Role.User.Id,
-                Name = AppConstants.Role.User.Name,
-                NormalizedName = AppConstants.Role.User.Name.ToUpper(),
+                Id = IdentityRoleConstant.Role.User.Id,
+                Name = IdentityRoleConstant.Role.User.Name,
+                NormalizedName = IdentityRoleConstant.Role.User.Name.ToUpper(),
                 ConcurrencyStamp = "88d484e2-ee7a-49b8-95e6-e34qw5rqb625"
             },
             new ()
             {
-                Id = AppConstants.Role.Admin.Id,
-                Name = AppConstants.Role.Admin.Name,
-                NormalizedName = AppConstants.Role.Admin.Name.ToUpper(),
+                Id = IdentityRoleConstant.Role.Admin.Id,
+                Name = IdentityRoleConstant.Role.Admin.Name,
+                NormalizedName = IdentityRoleConstant.Role.Admin.Name.ToUpper(),
                 ConcurrencyStamp = "8b6258e2-ee7a-49b8-95e6-e34qw5rqd484"
             },
             new ()
             {
-                Id = AppConstants.Role.SuperAdmin.Id,
-                Name = AppConstants.Role.SuperAdmin.Name,
-                NormalizedName = AppConstants.Role.SuperAdmin.Name.ToUpper(),
+                Id = IdentityRoleConstant.Role.SuperAdmin.Id,
+                Name = IdentityRoleConstant.Role.SuperAdmin.Name,
+                NormalizedName = IdentityRoleConstant.Role.SuperAdmin.Name.ToUpper(),
                 ConcurrencyStamp = "8z2358e2-ee7a-49b8-95e6-e34qw5rqd484"
             }
         };

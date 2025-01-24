@@ -6,6 +6,7 @@ using CurrentUser;
 using Dapper;
 using Data;
 using Entity;
+using HowCommon.Extensions;
 using Microsoft.Extensions.Options;
 using Npgsql;
 

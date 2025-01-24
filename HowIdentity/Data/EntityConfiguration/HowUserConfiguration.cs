@@ -1,7 +1,7 @@
 namespace HowIdentity.Data.EntityConfiguration;
 
-using Common.Enums;
 using Entity;
+using HowCommon.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
