@@ -13,6 +13,7 @@ using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Mappers;
 using HowCommon.Configurations;
 using IdentityModel;
+using Infrastructure.Processing.Producer;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
@@ -198,6 +199,7 @@ internal static class HostingExtensions
         builder.Services.AddTransient<ISuperAdminUserService, SuperAdminUserService>();
         builder.Services.AddTransient<ICurrentUserService, CurrentUserService>();
         builder.Services.AddTransient<ITargetUserService, TargetUserService>();
+        builder.Services.AddTransient<UserAccountProducer>();
         return builder;
     }
 

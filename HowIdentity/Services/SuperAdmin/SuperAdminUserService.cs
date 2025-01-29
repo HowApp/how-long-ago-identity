@@ -9,6 +9,7 @@ using Data;
 using Duende.IdentityServer.Services;
 using Entity;
 using HowCommon.Extensions;
+using Infrastructure.Processing.Producer;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using Pages.SuperAdmin.AppUsers;
@@ -21,19 +22,22 @@ public class SuperAdminUserService : ISuperAdminUserService
     private readonly ISessionManagementService _sessionManagementService;
     private readonly ITargetUserService _targetUserService;
     private readonly IOptions<AdminCredentials> _adminCredentials;
+    private readonly UserAccountProducer _producer;
 
     public SuperAdminUserService(
         ILogger<SuperAdminUserService> logger,
         DapperContext dapper,
         ISessionManagementService sessionManagementService,
         ITargetUserService targetUserService,
-        IOptions<AdminCredentials> adminCredentials)
+        IOptions<AdminCredentials> adminCredentials,
+        UserAccountProducer producer)
     {
         _logger = logger;
         _dapper = dapper;
         _sessionManagementService = sessionManagementService;
         _targetUserService = targetUserService;
         _adminCredentials = adminCredentials;
+        _producer = producer;
     }
 
     public async Task<ResultGeneric<List<AppUserModel>>>  GetUsers()
@@ -144,6 +148,8 @@ LIMIT 1;
                     RevokeTokens = true,
                     RevokeConsents = true
                 });
+
+                await _producer.PublishUserSuspendMessage(userId, true);
             }
 
             return result ? 
@@ -169,6 +175,11 @@ LIMIT 1;
             }
             
             var result = await UpdateSuspendStatus(userId, false, connection);
+
+            if (result)
+            {
+                await _producer.PublishUserSuspendMessage(userId, false);
+            }
             
             return result ? 
                 ResultDefault.Success() : 
@@ -307,6 +318,8 @@ RETURNING *;
                 RevokeTokens = true,
                 RevokeConsents = true
             });
+
+            await _producer.PublishUserDeletedMessage(userId);
 
             return ResultDefault.Success();
         }

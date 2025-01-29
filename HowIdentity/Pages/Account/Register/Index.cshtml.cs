@@ -11,8 +11,7 @@ using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using HowCommon.Enums;
-using HowCommon.MassTransitContract;
-using MassTransit;
+using Infrastructure.Processing.Producer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -24,20 +23,21 @@ public class Index : PageModel
     private readonly UserManager<HowUser> _userManager;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly ILogger<Index> _logger;
-    private readonly IPublishEndpoint _publishEndpoint;
+    private readonly UserAccountProducer _producer;
 
     [BindProperty]
     public InputModel Input { get; set; } = default!;
 
     public Index(
         IIdentityServerInteractionService interaction,
-        UserManager<HowUser> userManager, ILogger<Index> logger,
-        IPublishEndpoint publishEndpoint)
+        UserManager<HowUser> userManager,
+        ILogger<Index> logger,
+        UserAccountProducer producer)
     {
         _interaction = interaction;
         _userManager = userManager;
         _logger = logger;
-        _publishEndpoint = publishEndpoint;
+        _producer = producer;
     }
 
     public IActionResult OnGet(string? returnUrl)
@@ -135,11 +135,7 @@ public class Index : PageModel
             }
 
             // send event ro create record on main api
-            await _publishEndpoint.Publish<UserRegisterMessage>(
-                new UserRegisterMessage
-                {
-                    UserId = user.Id
-                });
+            await _producer.PublishUserRegistrationMessage(user.Id);
 
             // issue authentication cookie with subject ID and username
             var isuser = new IdentityServerUser(user.Id.ToString())

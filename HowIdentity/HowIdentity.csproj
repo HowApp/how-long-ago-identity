@@ -27,6 +27,5 @@
     <ItemGroup>
       <Folder Include="Data\Migrations\" />
       <Folder Include="Infrastructure\Processing\Consumer\" />
-      <Folder Include="Infrastructure\Processing\Producer\" />
     </ItemGroup>
 </Project>
