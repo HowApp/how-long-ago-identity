@@ -1,6 +1,0 @@
-@Api_HostAddress = https://localhost:6001
-
-GET {{Api_HostAddress}}/identity/
-Accept: application/json
-
-###
