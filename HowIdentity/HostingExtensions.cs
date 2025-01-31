@@ -238,6 +238,15 @@ internal static class HostingExtensions
         return builder;
     }
 
+    public static WebApplicationBuilder ConfigureGrpcServices(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddGrpcClient<Greeter.GreeterClient>("TestGreeterClient",o =>
+        {
+            o.Address = new Uri("https://localhost:7035");
+        });
+        return builder;
+    }
+
     private static void InitializeDatabase(IApplicationBuilder app)
     {
         using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()!.CreateScope())

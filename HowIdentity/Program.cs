@@ -1,6 +1,8 @@
 ﻿namespace HowIdentity;
 
 using Data.Seeds;
+using Grpc.Net.Client;
+using Grpc.Net.ClientFactory;
 using Serilog;
 
 public static class Program
@@ -29,6 +31,7 @@ public static class Program
                 .ConfigureDataAccess()
                 .ConfigureCustomService()
                 .ConfigureMassTransit()
+                .ConfigureGrpcServices()
                 .ConfigureServices()
                 .ConfigurePipeline();
 
@@ -40,6 +43,22 @@ public static class Program
                 SeedData.EnsureSeedAdmin(app);
                 SeedData.EnsureSeedData(app);
                 Log.Information("Done seeding database. Exiting...");
+                return;
+            }
+
+            // testing
+            if (args.Contains("/grpc"))
+            {
+                var grpcClientFactory = app.Services.GetRequiredService<GrpcClientFactory>();
+                var client = grpcClientFactory.CreateClient<Greeter.GreeterClient>("TestGreeterClient");
+
+                // using var channel = GrpcChannel.ForAddress("https://localhost:7035");
+                // var client2 = new Greeter.GreeterClient(channel);
+
+                var reply = client.SayHello(
+                    new HelloRequest { Name = "GreeterClient bobr!!!! Hello World!" });
+                Console.WriteLine("Greeting: " + reply.Message);
+                Console.ReadKey();
                 return;
             }
             
