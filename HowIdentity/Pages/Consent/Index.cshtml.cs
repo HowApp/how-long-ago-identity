@@ -35,7 +35,7 @@ public class Index : PageModel
 
     [BindProperty] public InputModel Input { get; set; } = default!;
 
-    public async Task<IActionResult> OnGet(string? returnUrl)
+    public async Task<IActionResult> OnGet(string returnUrl)
     {
         if (!await SetViewModelAsync(returnUrl))
         {
@@ -56,7 +56,7 @@ public class Index : PageModel
         var request = await _interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
         if (request == null) return RedirectToPage("/Home/Error/Index");
 
-        ConsentResponse? grantedConsent = null;
+        ConsentResponse grantedConsent = null;
 
         // user clicked 'no' - send back the standard 'access_denied' response
         if (Input.Button == "no")
@@ -136,7 +136,7 @@ public class Index : PageModel
         return Page();
     }
 
-    private async Task<bool> SetViewModelAsync(string? returnUrl)
+    private async Task<bool> SetViewModelAsync(string returnUrl)
     {
         ArgumentNullException.ThrowIfNull(returnUrl);
 

@@ -43,7 +43,7 @@ public class Index : PageModel
         _grpcClient = grpcClient;
     }
 
-    public IActionResult OnGet(string? returnUrl)
+    public IActionResult OnGet(string returnUrl)
     {
         Input = new InputModel { ReturnUrl = returnUrl };
         return Page();

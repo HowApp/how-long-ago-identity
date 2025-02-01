@@ -40,7 +40,7 @@ public class Index : PageModel
 
     [BindProperty] public InputModel Input { get; set; } = default!;
 
-    public async Task<IActionResult> OnGet(string? userCode)
+    public async Task<IActionResult> OnGet(string userCode)
     {
         if (String.IsNullOrWhiteSpace(userCode))
         {
@@ -68,7 +68,7 @@ public class Index : PageModel
                                                             throw new ArgumentNullException(nameof(Input.UserCode)));
         if (request == null) return RedirectToPage("/Home/Error/Index");
 
-        ConsentResponse? grantedConsent = null;
+        ConsentResponse grantedConsent = null;
 
         // user clicked 'no' - send back the standard 'access_denied' response
         if (Input.Button == "no")

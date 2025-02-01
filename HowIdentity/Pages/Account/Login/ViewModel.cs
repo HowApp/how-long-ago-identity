@@ -16,18 +16,18 @@ public class ViewModel
 
     public bool IsExternalLoginOnly => EnableLocalLogin == false && ExternalProviders?.Count() == 1;
 
-    public string? ExternalLoginScheme =>
+    public string ExternalLoginScheme =>
         IsExternalLoginOnly ? ExternalProviders?.SingleOrDefault()?.AuthenticationScheme : null;
 
     public class ExternalProvider
     {
-        public ExternalProvider(string authenticationScheme, string? displayName = null)
+        public ExternalProvider(string authenticationScheme, string displayName = null)
         {
             AuthenticationScheme = authenticationScheme;
             DisplayName = displayName;
         }
 
-        public string? DisplayName { get; set; }
+        public string DisplayName { get; set; }
         public string AuthenticationScheme { get; set; }
     }
 }

@@ -28,8 +28,8 @@ public class ResultDefault : ResultGeneric<int>
 public class ResultGeneric<T>
 {
     public bool IsSuccess { get; }
-    protected Failure? FailureData { get; set; }
-    private Success<T>? SuccessData { get; set; }
+    protected Failure FailureData { get; set; }
+    private Success<T> SuccessData { get; set; }
 
     protected ResultGeneric(bool isSuccess)
     {
