@@ -202,7 +202,7 @@ internal static class HostingExtensions
         builder.Services.AddTransient<ITargetUserService, TargetUserService>();
 
         // masstransit services
-        builder.Services.AddTransient<UserAccountProducer>();
+        builder.Services.AddTransient<UserServiceAccountProducer>();
 
         return builder;
     }
@@ -251,17 +251,12 @@ internal static class HostingExtensions
             o.MaxSendMessageSize = 1024 * 1024; // 1 MB
         });
 
-        builder.Services.AddGrpcClient<Greeter.GreeterClient>("TestGreeterClient",o =>
-        {
-            o.Address = new Uri("https://localhost:7035");
-        });
-
         builder.Services.AddGrpcClient<UserAccount.UserAccountClient>(o =>
         {
             o.Address = new Uri("https://localhost:7060");
         });
 
-        builder.Services.AddTransient<IUserAccountGrpcService, UserAccountGrpcService>();
+        builder.Services.AddTransient<IUserAccountGrpcService, UserServiceAccountGrpcService>();
 
         return builder;
     }

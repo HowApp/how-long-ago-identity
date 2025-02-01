@@ -5,13 +5,24 @@ option csharp_namespace = "HowIdentity";
 package user_account;
 
 service UserAccount{
-  rpc UserRegister (RegisterUserRequest) returns (RegisterUserReply);
+  rpc UserRegister (RegisterUserRequest) returns (Reply);
+  rpc UserDelete (DeleteUserRequest) returns (Reply);
+  rpc UserSuspend (SuspendUser) returns (Reply);
 }
 
 message RegisterUserRequest {
   int32 user_id = 1;
 }
 
-message RegisterUserReply {
+message DeleteUserRequest {
+  int32 user_id = 1;
+}
+
+message SuspendUser {
+  int32 user_id = 1;
+  bool state = 2;
+}
+
+message Reply {
   bool success = 1;
 }

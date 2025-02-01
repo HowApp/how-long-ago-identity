@@ -1,17 +1,16 @@
 namespace HowIdentity.Infrastructure.Processing.Producer;
 
+using AbstractServices;
 using HowCommon.MassTransitContract;
 using MassTransit;
 
-public class UserAccountProducer
+public class UserServiceAccountProducer : AbstractUserService
 {
-    private readonly ILogger<UserAccountProducer> _logger;
     private readonly IPublishEndpoint _publishEndpoint;
 
-    public UserAccountProducer(IPublishEndpoint publishEndpoint, ILogger<UserAccountProducer> logger)
+    public UserServiceAccountProducer(IPublishEndpoint publishEndpoint, ILoggerFactory loggerFactory) : base (loggerFactory)
     {
         _publishEndpoint = publishEndpoint;
-        _logger = logger;
     }
 
     public async Task PublishUserRegistrationMessage(int userId)
@@ -84,32 +83,5 @@ public class UserAccountProducer
         {
             _logger.LogError(ex, "Failed to publish message of type {MessageType}", typeof(T).Name);
         }
-    }
-    
-    private bool ValidateUserId(int userId)
-    {
-        if (userId < 1)
-        {
-            _logger.LogError("Invalid User Id: {UserId}", userId);
-            return false;
-        }
-        return true;
-    }
-    
-    private bool ValidateUserId(int[] userIds)
-    {
-        if (userIds is null)
-        {
-            _logger.LogError("User Id collection is invalid");
-            return false;
-        }
-        
-        if (userIds.Any(id => id < 1))
-        {
-            _logger.LogError("Invalid User Id in collection");
-            return false;
-        }
-        
-        return true;
     }
 }

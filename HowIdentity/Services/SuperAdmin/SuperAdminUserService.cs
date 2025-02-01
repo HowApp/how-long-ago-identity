@@ -22,7 +22,7 @@ public class SuperAdminUserService : ISuperAdminUserService
     private readonly ISessionManagementService _sessionManagementService;
     private readonly ITargetUserService _targetUserService;
     private readonly IOptions<AdminCredentials> _adminCredentials;
-    private readonly UserAccountProducer _producer;
+    private readonly UserServiceAccountProducer _producer;
 
     public SuperAdminUserService(
         ILogger<SuperAdminUserService> logger,
@@ -30,7 +30,7 @@ public class SuperAdminUserService : ISuperAdminUserService
         ISessionManagementService sessionManagementService,
         ITargetUserService targetUserService,
         IOptions<AdminCredentials> adminCredentials,
-        UserAccountProducer producer)
+        UserServiceAccountProducer producer)
     {
         _logger = logger;
         _dapper = dapper;

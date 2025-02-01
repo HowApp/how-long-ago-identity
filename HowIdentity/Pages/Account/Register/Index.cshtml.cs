@@ -24,7 +24,7 @@ public class Index : PageModel
     private readonly UserManager<HowUser> _userManager;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly ILogger<Index> _logger;
-    private readonly UserAccountProducer _producer;
+    private readonly UserServiceAccountProducer _producer;
     private readonly IUserAccountGrpcService _grpcClient;
 
     [BindProperty]
@@ -34,7 +34,7 @@ public class Index : PageModel
         IIdentityServerInteractionService interaction,
         UserManager<HowUser> userManager,
         ILogger<Index> logger,
-        UserAccountProducer producer, IUserAccountGrpcService grpcClient)
+        UserServiceAccountProducer producer, IUserAccountGrpcService grpcClient)
     {
         _interaction = interaction;
         _userManager = userManager;

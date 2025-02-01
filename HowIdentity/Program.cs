@@ -45,22 +45,6 @@ public static class Program
                 Log.Information("Done seeding database. Exiting...");
                 return;
             }
-
-            // testing
-            if (args.Contains("/grpc"))
-            {
-                var grpcClientFactory = app.Services.GetRequiredService<GrpcClientFactory>();
-                var client = grpcClientFactory.CreateClient<Greeter.GreeterClient>("TestGreeterClient");
-
-                // using var channel = GrpcChannel.ForAddress("https://localhost:7035");
-                // var client2 = new Greeter.GreeterClient(channel);
-
-                var reply = client.SayHello(
-                    new HelloRequest { Name = "GreeterClient bobr!!!! Hello World!" });
-                Console.WriteLine("Greeting: " + reply.Message);
-                Console.ReadKey();
-                return;
-            }
             
             app.Run();
         }
