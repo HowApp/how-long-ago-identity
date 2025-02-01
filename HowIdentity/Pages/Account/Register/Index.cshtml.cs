@@ -15,6 +15,7 @@ using Infrastructure.Processing.Producer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Services.GrpcCommunication;
 
 [SecurityHeaders]
 [AllowAnonymous]
@@ -24,6 +25,7 @@ public class Index : PageModel
     private readonly IIdentityServerInteractionService _interaction;
     private readonly ILogger<Index> _logger;
     private readonly UserAccountProducer _producer;
+    private readonly IUserAccountGrpcService _grpcClient;
 
     [BindProperty]
     public InputModel Input { get; set; } = default!;
@@ -32,12 +34,13 @@ public class Index : PageModel
         IIdentityServerInteractionService interaction,
         UserManager<HowUser> userManager,
         ILogger<Index> logger,
-        UserAccountProducer producer)
+        UserAccountProducer producer, IUserAccountGrpcService grpcClient)
     {
         _interaction = interaction;
         _userManager = userManager;
         _logger = logger;
         _producer = producer;
+        _grpcClient = grpcClient;
     }
 
     public IActionResult OnGet(string? returnUrl)
@@ -135,7 +138,8 @@ public class Index : PageModel
             }
 
             // send event ro create record on main api
-            await _producer.PublishUserRegistrationMessage(user.Id);
+            // await _producer.PublishUserRegistrationMessage(user.Id);
+            await _grpcClient.SendRegisterUserRequest(user.Id);
 
             // issue authentication cookie with subject ID and username
             var isuser = new IdentityServerUser(user.Id.ToString())

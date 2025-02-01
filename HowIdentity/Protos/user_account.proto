@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option csharp_namespace = "HowIdentity";
+
+package user_account;
+
+service UserAccount{
+  rpc UserRegister (RegisterUserRequest) returns (RegisterUserReply);
+}
+
+message RegisterUserRequest {
+  int32 user_id = 1;
+}
+
+message RegisterUserReply {
+  bool success = 1;
+}

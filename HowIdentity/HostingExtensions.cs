@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
 using Services;
 using Services.CurrentUser;
+using Services.GrpcCommunication;
 using Services.SuperAdmin;
 using Services.TargetUser;
 
@@ -199,7 +200,10 @@ internal static class HostingExtensions
         builder.Services.AddTransient<ISuperAdminUserService, SuperAdminUserService>();
         builder.Services.AddTransient<ICurrentUserService, CurrentUserService>();
         builder.Services.AddTransient<ITargetUserService, TargetUserService>();
+
+        // masstransit services
         builder.Services.AddTransient<UserAccountProducer>();
+
         return builder;
     }
 
@@ -240,10 +244,25 @@ internal static class HostingExtensions
 
     public static WebApplicationBuilder ConfigureGrpcServices(this WebApplicationBuilder builder)
     {
+        builder.Services.AddGrpc(o =>
+        {
+            o.EnableDetailedErrors = true;
+            o.MaxReceiveMessageSize = 1024 * 1024; // 1 MB
+            o.MaxSendMessageSize = 1024 * 1024; // 1 MB
+        });
+
         builder.Services.AddGrpcClient<Greeter.GreeterClient>("TestGreeterClient",o =>
         {
             o.Address = new Uri("https://localhost:7035");
         });
+
+        builder.Services.AddGrpcClient<UserAccount.UserAccountClient>(o =>
+        {
+            o.Address = new Uri("https://localhost:7060");
+        });
+
+        builder.Services.AddTransient<IUserAccountGrpcService, UserAccountGrpcService>();
+
         return builder;
     }
 
