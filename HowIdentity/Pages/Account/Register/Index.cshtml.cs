@@ -11,7 +11,6 @@ using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
 using Duende.IdentityServer.Services;
 using HowCommon.Enums;
-using Infrastructure.Processing.Producer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -24,7 +23,6 @@ public class Index : PageModel
     private readonly UserManager<HowUser> _userManager;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly ILogger<Index> _logger;
-    private readonly UserServiceAccountProducer _producer;
     private readonly IUserAccountGrpcService _grpcClient;
 
     [BindProperty]
@@ -33,13 +31,12 @@ public class Index : PageModel
     public Index(
         IIdentityServerInteractionService interaction,
         UserManager<HowUser> userManager,
-        ILogger<Index> logger,
-        UserServiceAccountProducer producer, IUserAccountGrpcService grpcClient)
+        ILogger<Index> logger, 
+        IUserAccountGrpcService grpcClient)
     {
         _interaction = interaction;
         _userManager = userManager;
         _logger = logger;
-        _producer = producer;
         _grpcClient = grpcClient;
     }
 
@@ -111,7 +108,13 @@ public class Index : PageModel
                 UserName = Input.UserName,
                 Email = Input.Email,
                 EmailConfirmed = true,
-                ExistInServices = new [] { MicroServicesEnum.IdentityServer }
+                UserMicroservices = [
+                    new UserMicroservices
+                    {
+                        MicroService = MicroServicesEnum.IdentityServer,
+                        ConfirmExisting = true
+                    }
+                ]
             };
             var userCreateResult = await _userManager.CreateAsync(user, Input.Password);
 

@@ -269,6 +269,8 @@ internal static class HostingExtensions
     {
         builder.Services.AddQuartz(o =>
         {
+            o.SchedulerId = "scheduler_1";
+            o.SchedulerName = "Big_Bobr";
             o.UseInMemoryStore();
         });
         builder.Services.AddQuartzHostedService(o =>
@@ -277,9 +279,9 @@ internal static class HostingExtensions
             o.AwaitApplicationStarted = true;
         });
 
-        builder.Services.AddTransient<AppJobScheduler>();
-
         builder.Services.RegisterJobs();
+        
+        builder.Services.AddTransient<AppJobScheduler>();
 
         return builder;
     }
@@ -377,7 +379,7 @@ internal static class HostingExtensions
 
     private static IServiceCollection RegisterJobs(this IServiceCollection services)
     {
-        services.AddTransient<TestJob>();
+        // services.AddTransient<TestJob>();
 
         return services;
     }

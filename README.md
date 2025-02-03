@@ -9,6 +9,9 @@ dotnet ef migrations add InitialIdentityServerConfigurationDbMigration -c Config
 To add initial migration for Application User
 ```csharp
 dotnet ef migrations add InitialIdentityServerDbMigration -c ApplicationDbContext -o Data/Migrations
+
+// to remove last migration if not apply
+dotnet ef migrations remove --context ApplicationDbContext
 ```
 
 To seed test users run

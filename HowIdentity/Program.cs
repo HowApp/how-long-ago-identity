@@ -1,13 +1,14 @@
 ﻿namespace HowIdentity;
 
 using Data.Seeds;
-using Grpc.Net.Client;
-using Grpc.Net.ClientFactory;
+using Infrastructure.Scheduler;
+using Infrastructure.Scheduler.Jobs;
+using Quartz;
 using Serilog;
 
 public static class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console()
@@ -46,6 +47,26 @@ public static class Program
                 Log.Information("Done seeding database. Exiting...");
                 return;
             }
+
+            var scheduler = app.Services.GetRequiredService<AppJobScheduler>();
+            // var schedulerFactory = app.Services.GetRequiredService<ISchedulerFactory>();
+            // var scheduler = await schedulerFactory.GetScheduler();
+            
+            // define the job and tie it to our HelloJob class
+            var job = JobBuilder.Create<TestJob>()
+                .WithIdentity("myJob", "group1")
+                .Build();
+
+            // Trigger the job to run now, and then every 40 seconds
+            var trigger = TriggerBuilder.Create()
+                .WithIdentity("myTrigger", "group1")
+                .StartNow()
+                .WithSimpleSchedule(x => x
+                    .WithIntervalInSeconds(40)
+                    .RepeatForever())
+                .Build();
+
+            await scheduler.ScheduleJob(job, trigger);
             
             app.Run();
         }

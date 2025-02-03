@@ -3,6 +3,7 @@ using System;
 using HowIdentity.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HowIdentity.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250203191318_UpdateUserLogic")]
+    partial class UpdateUserLogic
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -272,7 +275,7 @@ namespace HowIdentity.Data.Migrations
                 {
                     b.Property<int>("HowUserId")
                         .HasColumnType("integer")
-                        .HasColumnName("user_id");
+                        .HasColumnName("how_user_id");
 
                     b.Property<int>("MicroService")
                         .HasColumnType("integer")
@@ -283,12 +286,12 @@ namespace HowIdentity.Data.Migrations
                         .HasColumnName("confirm_existing");
 
                     b.HasKey("HowUserId", "MicroService")
-                        .HasName("pk_user_microservices");
+                        .HasName("pk_how_user_microservices");
 
                     b.HasIndex("ConfirmExisting")
-                        .HasDatabaseName("ix_user_microservices_confirm_existing");
+                        .HasDatabaseName("ix_how_user_microservices_confirm_existing");
 
-                    b.ToTable("user_microservices");
+                    b.ToTable("how_user_microservices");
                 });
 
             modelBuilder.Entity("HowIdentity.Entity.HowUserRole", b =>
@@ -368,10 +371,10 @@ namespace HowIdentity.Data.Migrations
                 {
                     b.HasOne("HowIdentity.Entity.HowUser", null)
                         .WithMany("UserMicroservices")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("HowUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_user_microservices_users_how_user_id");
+                        .HasConstraintName("fk_how_user_microservices_users_how_user_id");
                 });
 
             modelBuilder.Entity("HowIdentity.Entity.HowUserRole", b =>

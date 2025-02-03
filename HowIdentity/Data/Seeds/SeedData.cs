@@ -27,7 +27,19 @@ public class SeedData
                     UserName = "alice",
                     Email = "AliceSmith@email.com",
                     EmailConfirmed = true,
-                    ExistInServices = new [] { MicroServicesEnum.IdentityServer }
+                    UserMicroservices =
+                    [
+                        new UserMicroservices
+                        {
+                            MicroService = MicroServicesEnum.IdentityServer,
+                            ConfirmExisting = true
+                        },
+                        new UserMicroservices
+                        {
+                            MicroService = MicroServicesEnum.MainApi,
+                            ConfirmExisting = true
+                        }
+                    ]
                 };
                 var result = userMgr.CreateAsync(alice, "Pass123$").Result;
                 if (!result.Succeeded)
@@ -68,7 +80,18 @@ public class SeedData
                     UserName = "bob",
                     Email = "BobSmith@email.com",
                     EmailConfirmed = true,
-                    ExistInServices = new [] { MicroServicesEnum.IdentityServer}
+                    UserMicroservices = [
+                        new UserMicroservices
+                        {
+                            MicroService = MicroServicesEnum.IdentityServer,
+                            ConfirmExisting = true
+                        },
+                        new UserMicroservices
+                        {
+                            MicroService = MicroServicesEnum.MainApi,
+                            ConfirmExisting = true
+                        }
+                    ]
                 };
                 var result = userMgr.CreateAsync(bob, "Pass123$").Result;
                 if (!result.Succeeded)
@@ -125,7 +148,18 @@ public class SeedData
                     UserName = adminCredentials.Name,
                     Email = adminCredentials.Email,
                     EmailConfirmed = true,
-                    ExistInServices = new [] { MicroServicesEnum.IdentityServer, MicroServicesEnum.MainApi },
+                    UserMicroservices = [
+                        new UserMicroservices
+                        {
+                            MicroService = MicroServicesEnum.IdentityServer,
+                            ConfirmExisting = true
+                        },
+                        new UserMicroservices
+                        {
+                            MicroService = MicroServicesEnum.MainApi,
+                            ConfirmExisting = true
+                        }
+                    ],
                     UserRoles = new List<HowUserRole>
                     {
                         new ()
