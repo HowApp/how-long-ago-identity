@@ -32,6 +32,7 @@ public static class Program
                 .ConfigureCustomService()
                 .ConfigureMassTransit()
                 .ConfigureGrpcServices()
+                .ConfigureScheduler()
                 .ConfigureServices()
                 .ConfigurePipeline();
 

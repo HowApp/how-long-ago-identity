@@ -14,9 +14,13 @@ using Duende.IdentityServer.EntityFramework.Mappers;
 using HowCommon.Configurations;
 using IdentityModel;
 using Infrastructure.Processing.Producer;
+using Infrastructure.Scheduler;
+using Infrastructure.Scheduler.Jobs;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
+using Quartz;
+using Quartz.Impl;
 using Services;
 using Services.CurrentUser;
 using Services.GrpcCommunication;
@@ -261,6 +265,25 @@ internal static class HostingExtensions
         return builder;
     }
 
+    public static WebApplicationBuilder ConfigureScheduler(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddQuartz(o =>
+        {
+            o.UseInMemoryStore();
+        });
+        builder.Services.AddQuartzHostedService(o =>
+        {
+            o.WaitForJobsToComplete = true;
+            o.AwaitApplicationStarted = true;
+        });
+
+        builder.Services.AddTransient<AppJobScheduler>();
+
+        builder.Services.RegisterJobs();
+
+        return builder;
+    }
+
     private static void InitializeDatabase(IApplicationBuilder app)
     {
         using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()!.CreateScope())
@@ -349,6 +372,13 @@ internal static class HostingExtensions
     {
         services.Configure<AdminCredentials>(configuration.GetSection("AdminCredentials"));
         
+        return services;
+    }
+
+    private static IServiceCollection RegisterJobs(this IServiceCollection services)
+    {
+        services.AddTransient<TestJob>();
+
         return services;
     }
 
