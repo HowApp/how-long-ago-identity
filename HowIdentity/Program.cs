@@ -53,7 +53,7 @@ public static class Program
             // var scheduler = await schedulerFactory.GetScheduler();
             
             // define the job and tie it to our HelloJob class
-            var job = JobBuilder.Create<TestJob>()
+            var job = JobBuilder.Create<UpdateUserMicroservicesJob>()
                 .WithIdentity("myJob", "group1")
                 .Build();
 

@@ -32,6 +32,11 @@ public class UserServiceAccountProducer : AbstractUserService
         {
             return;
         }
+
+        if (userIds.Length == 0)
+        {
+            return;
+        }
         
         await PublishMessageAsync(new UserRegiserBulkMessage
         {
