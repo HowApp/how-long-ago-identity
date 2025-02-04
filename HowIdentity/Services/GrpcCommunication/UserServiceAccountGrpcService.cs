@@ -1,19 +1,25 @@
 namespace HowIdentity.Services.GrpcCommunication;
 
-using Infrastructure.AbstractServices;
+using HowCommon.Infrastructure.Helpers;
 
-public class UserServiceAccountGrpcService : AbstractUserService, IUserAccountGrpcService
+public class UserServiceAccountGrpcService : IUserAccountGrpcService
 {
+    private readonly ILogger<UserServiceAccountGrpcService> _logger;
     private readonly UserAccount.UserAccountClient _client;
+    private readonly UserIdHelper _helper;
 
-    public UserServiceAccountGrpcService(UserAccount.UserAccountClient client, ILoggerFactory loggerFactory) : base(loggerFactory)
+    public UserServiceAccountGrpcService(
+        UserAccount.UserAccountClient client,
+        ILogger<UserServiceAccountGrpcService> logger)
     {
         _client = client;
+        _logger = logger;
+        _helper = new UserIdHelper((sender, message) => logger.LogError(message));
     }
 
     public async Task SendRegisterUserRequest(int userId)
     {
-        if (!ValidateUserId(userId))
+        if (!_helper.ValidateUserId(userId))
         {
             return;
         }
@@ -32,7 +38,7 @@ public class UserServiceAccountGrpcService : AbstractUserService, IUserAccountGr
 
     public async Task SendDeleteUserRequest(int userId)
     {
-        if (!ValidateUserId(userId))
+        if (!_helper.ValidateUserId(userId))
         {
             return;
         }
@@ -51,7 +57,7 @@ public class UserServiceAccountGrpcService : AbstractUserService, IUserAccountGr
 
     public async Task SendSuspendUserRequest(int userId, bool state)
     {
-        if (!ValidateUserId(userId))
+        if (!_helper.ValidateUserId(userId))
         {
             return;
         }

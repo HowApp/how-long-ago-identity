@@ -67,7 +67,7 @@ public class UpdateUserMicroservicesJob : IJob
 
             if (usersNeedAddIdentityApi.Length != 0)
             {
-                await CommandExecute(usersNeedAddToApi, MicroServicesEnum.IdentityServer, connection);
+                await CommandExecute(usersNeedAddIdentityApi, MicroServicesEnum.IdentityServer, connection);
             }
         }
         catch (Exception e)
@@ -98,7 +98,7 @@ ORDER BY u.{nameof(HowUser.Id).ToSnake()};
     private readonly string _command = $@"
 INSERT INTO user_microservices (user_id, micro_service, confirm_existing) 
 VALUES ({nameof(_command)})
-ON CONFLICT (user_id, micro_service) DO UPDATE SET confirm_existing = 'TRUE'
+ON CONFLICT (user_id, micro_service) DO NOTHING;
 ";
 
     private async Task CommandExecute(int[] userIds, MicroServicesEnum target, NpgsqlConnection connection)
@@ -108,12 +108,7 @@ ON CONFLICT (user_id, micro_service) DO UPDATE SET confirm_existing = 'TRUE'
                 
         var command = _command.Replace($"({nameof(_command)})", sequence);
                 
-        var commandResult = await connection.ExecuteAsync(command);
-
-        if (commandResult == 0)
-        {
-            _logger.LogError($"{nameof(target)} user microservices insert not success!");
-        }
+        await connection.ExecuteAsync(command);
     }
 }
 

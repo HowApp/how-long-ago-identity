@@ -1,21 +1,28 @@
 namespace HowIdentity.Infrastructure.Processing.Producer;
 
-using AbstractServices;
+using HowCommon.Infrastructure.Helpers;
 using HowCommon.MassTransitContract;
 using MassTransit;
 
-public class UserServiceAccountProducer : AbstractUserService
+public class UserServiceAccountProducer
 {
+    private readonly ILogger<UserServiceAccountProducer> _logger;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly UserIdHelper _helper;
 
-    public UserServiceAccountProducer(IPublishEndpoint publishEndpoint, ILoggerFactory loggerFactory) : base (loggerFactory)
+    public UserServiceAccountProducer(
+        IPublishEndpoint publishEndpoint,
+        ILogger<UserServiceAccountProducer> logger)
     {
         _publishEndpoint = publishEndpoint;
+        _logger = logger;
+
+        _helper = new UserIdHelper((sender, message) => logger.LogError(message));
     }
 
     public async Task PublishUserRegistrationMessage(int userId)
     {
-        if (!ValidateUserId(userId))
+        if (!_helper.ValidateUserId(userId))
         {
             return;
         }
@@ -28,7 +35,7 @@ public class UserServiceAccountProducer : AbstractUserService
     
     public async Task PublishUserBulkRegistrationMessage(int[] userIds)
     {
-        if (!ValidateUserId(userIds))
+        if (!_helper.ValidateUserId(userIds))
         {
             return;
         }
@@ -46,7 +53,7 @@ public class UserServiceAccountProducer : AbstractUserService
     
     public async Task PublishUserDeletedMessage(int userId)
     {
-        if (!ValidateUserId(userId))
+        if (!_helper.ValidateUserId(userId))
         {
             return;
         }
@@ -59,7 +66,7 @@ public class UserServiceAccountProducer : AbstractUserService
     
     public async Task PublishUserSuspendMessage(int userId, bool state)
     {
-        if (!ValidateUserId(userId))
+        if (!_helper.ValidateUserId(userId))
         {
             return;
         }

@@ -1,7 +1,6 @@
 namespace HowIdentity.Services.TargetUser;
 
 using Common.Configurations;
-using Common.Extensions;
 using CurrentUser;
 using Dapper;
 using Data;
