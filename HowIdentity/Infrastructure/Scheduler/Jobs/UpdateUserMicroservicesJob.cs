@@ -5,6 +5,7 @@ using Data;
 using Entity;
 using HowCommon.Enums;
 using HowCommon.Extensions;
+using Npgsql;
 using Processing.Producer;
 using Quartz;
 
@@ -32,7 +33,50 @@ public class UpdateUserMicroservicesJob : IJob
             (int)MicroServicesEnum.MainApi
         };
 
-        var query = $@"
+        try
+        {
+            using var connection = _context.InitConnection();
+            var queryResult = await connection.QueryAsync<(int userId, int microserviceId)>(
+                _query,
+                new
+                {
+                    Microservices = microservices
+                });
+
+            var userList = queryResult.ToList();
+
+            if (!userList.Any())
+            {
+                return;
+            }
+
+            var usersNeedAddToApi = userList
+                .Where(u => u.microserviceId == (int)MicroServicesEnum.MainApi)
+                .Select(u => u.userId).ToArray();
+
+            if (usersNeedAddToApi.Any())
+            {
+                await _producer.PublishUserBulkRegistrationMessage(usersNeedAddToApi);
+
+                await CommandExecute(usersNeedAddToApi, MicroServicesEnum.MainApi, connection);
+            }
+
+            var usersNeedAddIdentityApi = userList
+                .Where(u => u.microserviceId == (int)MicroServicesEnum.IdentityServer)
+                .Select(u => u.userId).ToArray();
+
+            if (usersNeedAddIdentityApi.Length != 0)
+            {
+                await CommandExecute(usersNeedAddToApi, MicroServicesEnum.IdentityServer, connection);
+            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, e.Message);
+        }
+    }
+    
+    private readonly string _query = $@"
 WITH required_services AS (
     SELECT unnest(@Microservices) AS micro_service
 )
@@ -51,56 +95,24 @@ WHERE
 ORDER BY u.{nameof(HowUser.Id).ToSnake()};
 ";
 
-        try
-        {
-            using var connection = _context.InitConnection();
-            var queryResult = await connection.QueryAsync<(int userId, int microserviceId)>(
-                query,
-                new
-                {
-                    Microservices = microservices
-                });
-        
-            var userList = queryResult.ToList();
-
-            if (!userList.Any())
-            {
-                return;
-            }
-
-            var usersNeedAddToApi = userList
-                .Where(u => u.microserviceId == (int)MicroServicesEnum.MainApi)
-                .Select(u => u.userId).ToArray();
-
-            await _producer.PublishUserBulkRegistrationMessage(usersNeedAddToApi);
-            
-            var usersNeedAddIdentityApi = userList
-                .Where(u => u.microserviceId == (int)MicroServicesEnum.IdentityServer)
-                .Select(u => u.userId).ToArray();
-
-            if (usersNeedAddIdentityApi.Length != 0)
-            {
-                var sequence = string.Join(",\n", usersNeedAddIdentityApi.Select(x => $"({x}, {(int)MicroServicesEnum.IdentityServer}, 'TRUE')"));
-                
-                var command = $@"
+    private readonly string _command = $@"
 INSERT INTO user_microservices (user_id, micro_service, confirm_existing) 
-VALUES ({nameof(sequence)})
+VALUES ({nameof(_command)})
 ON CONFLICT (user_id, micro_service) DO UPDATE SET confirm_existing = 'TRUE'
 ";
-                
-                command = command.Replace($"({nameof(sequence)})", sequence);
-                
-                var commandResult = await connection.ExecuteAsync(command);
 
-                if (commandResult == 0)
-                {
-                    _logger.LogError("Default insert not success!");
-                }
-            }
-        }
-        catch (Exception e)
+    private async Task CommandExecute(int[] userIds, MicroServicesEnum target, NpgsqlConnection connection)
+    {
+        var boolColl = target == MicroServicesEnum.IdentityServer ? "TRUE" : "FALSE";
+        var sequence = string.Join(",\n", userIds.Select(x => $"({x}, {(int)target}, {boolColl})"));
+                
+        var command = _command.Replace($"({nameof(_command)})", sequence);
+                
+        var commandResult = await connection.ExecuteAsync(command);
+
+        if (commandResult == 0)
         {
-            _logger.LogError(e, e.Message);
+            _logger.LogError($"{nameof(target)} user microservices insert not success!");
         }
     }
 }
