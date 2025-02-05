@@ -1,4 +1,4 @@
-namespace HowIdentity;
+namespace HowIdentity.Hosting;
 
 using Common.Configurations;
 using Common.Constants;
@@ -16,12 +16,10 @@ using IdentityModel;
 using Infrastructure.Processing.Consumer;
 using Infrastructure.Processing.Producer;
 using Infrastructure.Scheduler;
-using Infrastructure.Scheduler.Jobs;
 using MassTransit;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.IdentityModel.Tokens;
 using Quartz;
-using Quartz.Impl;
 using Services;
 using Services.CurrentUser;
 using Services.GrpcCommunication;

@@ -1,9 +1,7 @@
 ﻿namespace HowIdentity;
 
 using Data.Seeds;
-using Infrastructure.Scheduler;
-using Infrastructure.Scheduler.Jobs;
-using Quartz;
+using Hosting;
 using Serilog;
 
 public static class Program
@@ -48,26 +46,8 @@ public static class Program
                 return;
             }
 
-            var scheduler = app.Services.GetRequiredService<AppJobScheduler>();
-            // var schedulerFactory = app.Services.GetRequiredService<ISchedulerFactory>();
-            // var scheduler = await schedulerFactory.GetScheduler();
-            
-            // define the job and tie it to our HelloJob class
-            var job = JobBuilder.Create<UpdateUserMicroservicesJob>()
-                .WithIdentity("myJob", "group1")
-                .Build();
+            await app.InitializeDefaultJob();
 
-            // Trigger the job to run now, and then every 40 seconds
-            var trigger = TriggerBuilder.Create()
-                .WithIdentity("myTrigger", "group1")
-                .StartNow()
-                // .WithSimpleSchedule(x => x
-                //     .WithIntervalInSeconds(40)
-                //     .RepeatForever())
-                .Build();
-
-            await scheduler.ScheduleJob(job, trigger);
-            
             app.Run();
         }
         catch (Exception ex) when (ex is not HostAbortedException)

@@ -1,5 +1,7 @@
 namespace HowIdentity.Infrastructure.Scheduler.Jobs;
 
+using Common.Constants;
+using Common.Helpers;
 using Dapper;
 using Data;
 using Entity;
@@ -11,6 +13,12 @@ using Quartz;
 
 public class UpdateUserMicroservicesJob : IJob
 {
+    private static readonly string JobTypeId = IdentityJobConstant.Internal;
+    private static readonly string JobName = "user-microservices";
+    
+    public static JobKey JobKey => JobHelpers.GetJobKey(JobTypeId, JobName);
+    public static TriggerKey TriggerKey => JobHelpers.GetTriggerKey(JobTypeId, JobName);
+    
     private readonly ILogger<UpdateUserMicroservicesJob> _logger;
     private readonly DapperContext _context;
     private readonly UserServiceAccountProducer _producer;
