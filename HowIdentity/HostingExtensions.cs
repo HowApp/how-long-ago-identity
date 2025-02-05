@@ -13,6 +13,7 @@ using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Mappers;
 using HowCommon.Configurations;
 using IdentityModel;
+using Infrastructure.Processing.Consumer;
 using Infrastructure.Processing.Producer;
 using Infrastructure.Scheduler;
 using Infrastructure.Scheduler.Jobs;
@@ -215,9 +216,13 @@ internal static class HostingExtensions
     {
         var rabbitMq = new RabbitMqConfiguration();
         builder.Configuration.Bind(nameof(RabbitMqConfiguration), rabbitMq);
-        
+
         builder.Services.AddMassTransit(x =>
         {
+            x.AddConsumer<UserRegiserBulkResponseConsumer, UserRegiserBulkResponseConsumerDefinition>();
+
+            x.SetEndpointNameFormatter(new KebabCaseEndpointNameFormatter("dev", false));
+
             x.UsingRabbitMq((context, config) =>
             {
                 config.Host(rabbitMq.Host, "/", host =>
@@ -225,6 +230,8 @@ internal static class HostingExtensions
                     host.Username(rabbitMq.User);
                     host.Password(rabbitMq.Password);
                 });
+
+                config.ConfigureEndpoints(context);
             });
         });
 
