@@ -36,8 +36,8 @@ namespace HowIdentity.Data.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    first_name = table.Column<string>(type: "text", nullable: true),
-                    last_name = table.Column<string>(type: "text", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    is_suspended = table.Column<bool>(type: "boolean", nullable: false),
                     user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     normalized_user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
                     email = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: true),
@@ -121,6 +121,25 @@ namespace HowIdentity.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "user_microservices",
+                columns: table => new
+                {
+                    user_id = table.Column<int>(type: "integer", nullable: false),
+                    micro_service = table.Column<int>(type: "integer", nullable: false),
+                    confirm_existing = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_user_microservices", x => new { x.user_id, x.micro_service });
+                    table.ForeignKey(
+                        name: "fk_user_microservices_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "user_roles",
                 columns: table => new
                 {
@@ -196,6 +215,11 @@ namespace HowIdentity.Data.Migrations
                 column: "user_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_user_microservices_confirm_existing",
+                table: "user_microservices",
+                column: "confirm_existing");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_user_roles_role_id",
                 table: "user_roles",
                 column: "role_id");
@@ -204,6 +228,22 @@ namespace HowIdentity.Data.Migrations
                 name: "email_index",
                 table: "users",
                 column: "normalized_email");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_users_email",
+                table: "users",
+                column: "email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_users_is_deleted",
+                table: "users",
+                column: "is_deleted");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_users_is_suspended",
+                table: "users",
+                column: "is_suspended");
 
             migrationBuilder.CreateIndex(
                 name: "user_name_index",
@@ -223,6 +263,9 @@ namespace HowIdentity.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "user_logins");
+
+            migrationBuilder.DropTable(
+                name: "user_microservices");
 
             migrationBuilder.DropTable(
                 name: "user_roles");

@@ -268,29 +268,6 @@ namespace HowIdentity.Data.Migrations
                     b.ToTable("user_logins", (string)null);
                 });
 
-            modelBuilder.Entity("HowIdentity.Entity.HowUserMicroservices", b =>
-                {
-                    b.Property<int>("HowUserId")
-                        .HasColumnType("integer")
-                        .HasColumnName("user_id");
-
-                    b.Property<int>("MicroService")
-                        .HasColumnType("integer")
-                        .HasColumnName("micro_service");
-
-                    b.Property<bool>("ConfirmExisting")
-                        .HasColumnType("boolean")
-                        .HasColumnName("confirm_existing");
-
-                    b.HasKey("HowUserId", "MicroService")
-                        .HasName("pk_user_microservices");
-
-                    b.HasIndex("ConfirmExisting")
-                        .HasDatabaseName("ix_user_microservices_confirm_existing");
-
-                    b.ToTable("user_microservices");
-                });
-
             modelBuilder.Entity("HowIdentity.Entity.HowUserRole", b =>
                 {
                     b.Property<int>("UserId")
@@ -334,6 +311,29 @@ namespace HowIdentity.Data.Migrations
                     b.ToTable("user_tokens", (string)null);
                 });
 
+            modelBuilder.Entity("HowIdentity.Entity.UserMicroservices", b =>
+                {
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<int>("MicroService")
+                        .HasColumnType("integer")
+                        .HasColumnName("micro_service");
+
+                    b.Property<bool>("ConfirmExisting")
+                        .HasColumnType("boolean")
+                        .HasColumnName("confirm_existing");
+
+                    b.HasKey("UserId", "MicroService")
+                        .HasName("pk_user_microservices");
+
+                    b.HasIndex("ConfirmExisting")
+                        .HasDatabaseName("ix_user_microservices_confirm_existing");
+
+                    b.ToTable("user_microservices");
+                });
+
             modelBuilder.Entity("HowIdentity.Entity.HowRoleClaim", b =>
                 {
                     b.HasOne("HowIdentity.Entity.HowRole", null)
@@ -362,16 +362,6 @@ namespace HowIdentity.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_user_logins_users_user_id");
-                });
-
-            modelBuilder.Entity("HowIdentity.Entity.HowUserMicroservices", b =>
-                {
-                    b.HasOne("HowIdentity.Entity.HowUser", null)
-                        .WithMany("UserMicroservices")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_user_microservices_users_how_user_id");
                 });
 
             modelBuilder.Entity("HowIdentity.Entity.HowUserRole", b =>
@@ -403,6 +393,18 @@ namespace HowIdentity.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_user_tokens_users_user_id");
+                });
+
+            modelBuilder.Entity("HowIdentity.Entity.UserMicroservices", b =>
+                {
+                    b.HasOne("HowIdentity.Entity.HowUser", "User")
+                        .WithMany("UserMicroservices")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_microservices_users_user_id");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("HowIdentity.Entity.HowRole", b =>

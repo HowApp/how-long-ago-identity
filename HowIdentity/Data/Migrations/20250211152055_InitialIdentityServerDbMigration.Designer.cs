@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace HowIdentity.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250105121736_InitialIdentityServerDbMigration")]
+    [Migration("20250211152055_InitialIdentityServerDbMigration")]
     partial class InitialIdentityServerDbMigration
     {
         /// <inheritdoc />
@@ -25,7 +25,7 @@ namespace HowIdentity.Data.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("HowIdentity.Models.HowRole", b =>
+            modelBuilder.Entity("HowIdentity.Entity.HowRole", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -83,7 +83,7 @@ namespace HowIdentity.Data.Migrations
                         });
                 });
 
-            modelBuilder.Entity("HowIdentity.Models.HowRoleClaim", b =>
+            modelBuilder.Entity("HowIdentity.Entity.HowRoleClaim", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -113,7 +113,7 @@ namespace HowIdentity.Data.Migrations
                     b.ToTable("role_claims", (string)null);
                 });
 
-            modelBuilder.Entity("HowIdentity.Models.HowUser", b =>
+            modelBuilder.Entity("HowIdentity.Entity.HowUser", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -140,13 +140,13 @@ namespace HowIdentity.Data.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("email_confirmed");
 
-                    b.Property<string>("FirstName")
-                        .HasColumnType("text")
-                        .HasColumnName("first_name");
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
 
-                    b.Property<string>("LastName")
-                        .HasColumnType("text")
-                        .HasColumnName("last_name");
+                    b.Property<bool>("IsSuspended")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_suspended");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean")
@@ -194,6 +194,16 @@ namespace HowIdentity.Data.Migrations
                     b.HasKey("Id")
                         .HasName("pk_users");
 
+                    b.HasIndex("Email")
+                        .IsUnique()
+                        .HasDatabaseName("ix_users_email");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("ix_users_is_deleted");
+
+                    b.HasIndex("IsSuspended")
+                        .HasDatabaseName("ix_users_is_suspended");
+
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("email_index");
 
@@ -204,7 +214,7 @@ namespace HowIdentity.Data.Migrations
                     b.ToTable("users", (string)null);
                 });
 
-            modelBuilder.Entity("HowIdentity.Models.HowUserClaim", b =>
+            modelBuilder.Entity("HowIdentity.Entity.HowUserClaim", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -234,7 +244,7 @@ namespace HowIdentity.Data.Migrations
                     b.ToTable("user_claims", (string)null);
                 });
 
-            modelBuilder.Entity("HowIdentity.Models.HowUserLogin", b =>
+            modelBuilder.Entity("HowIdentity.Entity.HowUserLogin", b =>
                 {
                     b.Property<string>("LoginProvider")
                         .HasColumnType("text")
@@ -261,7 +271,7 @@ namespace HowIdentity.Data.Migrations
                     b.ToTable("user_logins", (string)null);
                 });
 
-            modelBuilder.Entity("HowIdentity.Models.HowUserRole", b =>
+            modelBuilder.Entity("HowIdentity.Entity.HowUserRole", b =>
                 {
                     b.Property<int>("UserId")
                         .HasColumnType("integer")
@@ -280,7 +290,7 @@ namespace HowIdentity.Data.Migrations
                     b.ToTable("user_roles", (string)null);
                 });
 
-            modelBuilder.Entity("HowIdentity.Models.HowUserToken", b =>
+            modelBuilder.Entity("HowIdentity.Entity.HowUserToken", b =>
                 {
                     b.Property<int>("UserId")
                         .HasColumnType("integer")
@@ -304,9 +314,32 @@ namespace HowIdentity.Data.Migrations
                     b.ToTable("user_tokens", (string)null);
                 });
 
-            modelBuilder.Entity("HowIdentity.Models.HowRoleClaim", b =>
+            modelBuilder.Entity("HowIdentity.Entity.UserMicroservices", b =>
                 {
-                    b.HasOne("HowIdentity.Models.HowRole", null)
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<int>("MicroService")
+                        .HasColumnType("integer")
+                        .HasColumnName("micro_service");
+
+                    b.Property<bool>("ConfirmExisting")
+                        .HasColumnType("boolean")
+                        .HasColumnName("confirm_existing");
+
+                    b.HasKey("UserId", "MicroService")
+                        .HasName("pk_user_microservices");
+
+                    b.HasIndex("ConfirmExisting")
+                        .HasDatabaseName("ix_user_microservices_confirm_existing");
+
+                    b.ToTable("user_microservices");
+                });
+
+            modelBuilder.Entity("HowIdentity.Entity.HowRoleClaim", b =>
+                {
+                    b.HasOne("HowIdentity.Entity.HowRole", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -314,9 +347,9 @@ namespace HowIdentity.Data.Migrations
                         .HasConstraintName("fk_role_claims_roles_role_id");
                 });
 
-            modelBuilder.Entity("HowIdentity.Models.HowUserClaim", b =>
+            modelBuilder.Entity("HowIdentity.Entity.HowUserClaim", b =>
                 {
-                    b.HasOne("HowIdentity.Models.HowUser", null)
+                    b.HasOne("HowIdentity.Entity.HowUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -324,9 +357,9 @@ namespace HowIdentity.Data.Migrations
                         .HasConstraintName("fk_user_claims_users_user_id");
                 });
 
-            modelBuilder.Entity("HowIdentity.Models.HowUserLogin", b =>
+            modelBuilder.Entity("HowIdentity.Entity.HowUserLogin", b =>
                 {
-                    b.HasOne("HowIdentity.Models.HowUser", null)
+                    b.HasOne("HowIdentity.Entity.HowUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -334,16 +367,16 @@ namespace HowIdentity.Data.Migrations
                         .HasConstraintName("fk_user_logins_users_user_id");
                 });
 
-            modelBuilder.Entity("HowIdentity.Models.HowUserRole", b =>
+            modelBuilder.Entity("HowIdentity.Entity.HowUserRole", b =>
                 {
-                    b.HasOne("HowIdentity.Models.HowRole", "Role")
+                    b.HasOne("HowIdentity.Entity.HowRole", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("fk_user_roles_roles_role_id");
 
-                    b.HasOne("HowIdentity.Models.HowUser", "User")
+                    b.HasOne("HowIdentity.Entity.HowUser", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -355,9 +388,9 @@ namespace HowIdentity.Data.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("HowIdentity.Models.HowUserToken", b =>
+            modelBuilder.Entity("HowIdentity.Entity.HowUserToken", b =>
                 {
-                    b.HasOne("HowIdentity.Models.HowUser", null)
+                    b.HasOne("HowIdentity.Entity.HowUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -365,13 +398,27 @@ namespace HowIdentity.Data.Migrations
                         .HasConstraintName("fk_user_tokens_users_user_id");
                 });
 
-            modelBuilder.Entity("HowIdentity.Models.HowRole", b =>
+            modelBuilder.Entity("HowIdentity.Entity.UserMicroservices", b =>
+                {
+                    b.HasOne("HowIdentity.Entity.HowUser", "User")
+                        .WithMany("UserMicroservices")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_microservices_users_user_id");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("HowIdentity.Entity.HowRole", b =>
                 {
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("HowIdentity.Models.HowUser", b =>
+            modelBuilder.Entity("HowIdentity.Entity.HowUser", b =>
                 {
+                    b.Navigation("UserMicroservices");
+
                     b.Navigation("UserRoles");
                 });
 #pragma warning restore 612, 618
