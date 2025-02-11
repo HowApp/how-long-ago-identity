@@ -13,6 +13,7 @@ using Duende.IdentityServer.EntityFramework.DbContexts;
 using Duende.IdentityServer.EntityFramework.Mappers;
 using HowCommon.Configurations;
 using IdentityModel;
+using Infrastructure.CertificateManagement;
 using Infrastructure.Processing.Consumer;
 using Infrastructure.Processing.Producer;
 using Infrastructure.Scheduler;
@@ -253,6 +254,8 @@ internal static class HostingExtensions
 
     public static WebApplicationBuilder ConfigureGrpcServices(this WebApplicationBuilder builder)
     {
+        var cert = CertificateManager.GetInstance().GetOrCreateCertificate(builder.Configuration);
+        
         builder.Services.AddGrpc(o =>
         {
             o.EnableDetailedErrors = true;
@@ -262,7 +265,14 @@ internal static class HostingExtensions
 
         builder.Services.AddGrpcClient<UserAccount.UserAccountClient>(o =>
         {
-            o.Address = new Uri("https://localhost:7060");
+            o.Address = new Uri("https://localhost:7061");
+        })
+        .ConfigurePrimaryHttpMessageHandler(() =>
+        {
+            var handler = new HttpClientHandler();
+            handler.ClientCertificates.Add(cert);
+
+            return handler;
         });
 
         builder.Services.AddTransient<IUserAccountGrpcService, UserServiceAccountGrpcService>();

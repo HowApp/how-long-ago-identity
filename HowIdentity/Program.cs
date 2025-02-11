@@ -2,6 +2,7 @@
 
 using Data.Seeds;
 using Hosting;
+using Infrastructure.CertificateManagement;
 using Serilog;
 
 public static class Program
@@ -24,6 +25,9 @@ public static class Program
                     "[{Timestamp:HH:mm:ss} {Level}] {SourceContext}{NewLine}{Message:lj}{NewLine}{Exception}{NewLine}")
                 .Enrich.FromLogContext()
                 .ReadFrom.Configuration(ctx.Configuration));
+
+            var certManager = CertificateManager.GetInstance();
+            certManager.GetOrCreateCertificate(builder.Configuration);
 
             var app = builder
                 .ConfigureCors()
