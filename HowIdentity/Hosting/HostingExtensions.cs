@@ -261,6 +261,7 @@ internal static class HostingExtensions
             o.EnableDetailedErrors = true;
             o.MaxReceiveMessageSize = 1024 * 1024; // 1 MB
             o.MaxSendMessageSize = 1024 * 1024; // 1 MB
+            o.EnableDetailedErrors = true;
         });
 
         builder.Services.AddGrpcClient<UserAccount.UserAccountClient>(o =>
@@ -271,6 +272,10 @@ internal static class HostingExtensions
         {
             var handler = new HttpClientHandler();
             handler.ClientCertificates.Add(cert);
+            
+            // I'm not entirely sure if I'm doing this correctly.
+            handler.ServerCertificateCustomValidationCallback = 
+                (message, certificate, chain, errors) => certificate.Equals(cert);
 
             return handler;
         });
