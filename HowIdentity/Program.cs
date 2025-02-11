@@ -26,9 +26,6 @@ public static class Program
                 .Enrich.FromLogContext()
                 .ReadFrom.Configuration(ctx.Configuration));
 
-            var certManager = CertificateManager.GetInstance();
-            certManager.GetOrCreateCertificate(builder.Configuration);
-
             var app = builder
                 .ConfigureCors()
                 .ConfigureDataAccess()

@@ -254,8 +254,9 @@ internal static class HostingExtensions
 
     public static WebApplicationBuilder ConfigureGrpcServices(this WebApplicationBuilder builder)
     {
-        var cert = CertificateManager.GetInstance().GetOrCreateCertificate(builder.Configuration);
-        
+        var certificateManager = CertificateManager.GetInstance();
+        certificateManager.SetUpManagerConfig(builder.Configuration);
+
         builder.Services.AddGrpc(o =>
         {
             o.EnableDetailedErrors = true;
@@ -271,11 +272,11 @@ internal static class HostingExtensions
         .ConfigurePrimaryHttpMessageHandler(() =>
         {
             var handler = new HttpClientHandler();
-            handler.ClientCertificates.Add(cert);
+            handler.ClientCertificates.Add(certificateManager.GetCertificate());
             
             // I'm not entirely sure if I'm doing this correctly.
             handler.ServerCertificateCustomValidationCallback = 
-                (message, certificate, chain, errors) => certificate.Equals(cert);
+                (message, certificate, chain, errors) => certificate.Equals(certificateManager.GetCertificate());
 
             return handler;
         });

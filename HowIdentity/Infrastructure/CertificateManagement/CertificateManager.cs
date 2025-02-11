@@ -1,14 +1,9 @@
 namespace HowIdentity.Infrastructure.CertificateManagement;
 
-using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
-using Common.Configurations;
-using Common.Constants;
 
-public sealed class CertificateManager
+public sealed class CertificateManager : CertificateManagerBase
 {
-    private static readonly string CertPath = GetCertificatePath("how_app_microservices.pfx");
-
     private static CertificateManager _instance;
 
     private static readonly object Lock = new object();
@@ -32,30 +27,27 @@ public sealed class CertificateManager
         return _instance;
     }
 
-    public X509Certificate2 GetOrCreateCertificate(IConfiguration configuration)
+    protected override void GetOrCreateCertificate()
     {
-        var certPassword = new CertificateConfiguration();
-        configuration.Bind(nameof(CertificateConfiguration), certPassword);
-
         if (File.Exists(CertPath))
         {
-            var cert = new X509Certificate2(CertPath, certPassword.Password);
+            Certificate = new X509Certificate2(CertPath, CertPassword);
             
-            if (cert.NotAfter <= DateTime.UtcNow.AddDays(7))
+            if (Certificate.NotAfter <= DateTime.UtcNow.AddDays(7))
             {
-                return GenerateAndSaveCertificate(certPassword.Password);
+                GenerateAndSaveCertificate(CertPassword, CN);
             }
-
-            return cert;
         }
-
-        return GenerateAndSaveCertificate(certPassword.Password);
+        else
+        {
+            GenerateAndSaveCertificate(CertPassword, CN);
+        }
     }
-    
-    private X509Certificate2 GenerateAndSaveCertificate(string certPassword)
+
+    private void GenerateAndSaveCertificate(string certPassword, string certName)
     {
         using var rsa = System.Security.Cryptography.RSA.Create(4096);
-        var request = new CertificateRequest("CN=my-microservices", rsa, 
+        var request = new CertificateRequest($"CN={certName}", rsa, 
             System.Security.Cryptography.HashAlgorithmName.SHA256, 
             System.Security.Cryptography.RSASignaturePadding.Pkcs1);
 
@@ -68,45 +60,6 @@ public sealed class CertificateManager
 
         File.WriteAllBytes(CertPath, pfxData);
 
-        return new X509Certificate2(pfxData, certPassword);
-    }
-    
-    private static string  GetCertificatePath(string certName)
-    {
-        var directory = string.Empty;
-        
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-        {
-            directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "dev-cert", CertificateConstant.ProductName);
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-        {
-            directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "dev-cert", CertificateConstant.ProductName);
-        }
-        else if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-        {
-            directory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "dev-cert", CertificateConstant.ProductName);
-        }
-        else
-        {
-            throw new PlatformNotSupportedException("Unsupported operating system.");
-        }
-
-        EnsureDirectoryExist(directory);
-
-        return Path.Combine(directory, certName);
-    }
-
-    private static void EnsureDirectoryExist(string directory)
-    {
-        if (string.IsNullOrEmpty(directory))
-        {
-            throw new ArgumentNullException(nameof(directory));
-        }
-
-        if (!Directory.Exists(directory))
-        {
-            Directory.CreateDirectory(directory);
-        }
+        Certificate = new X509Certificate2(pfxData, certPassword);
     }
 }
