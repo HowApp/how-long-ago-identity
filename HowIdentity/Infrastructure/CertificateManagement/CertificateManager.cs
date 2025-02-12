@@ -1,6 +1,7 @@
 namespace HowIdentity.Infrastructure.CertificateManagement;
 
 using System.Security.Cryptography.X509Certificates;
+using HowCommon.Infrastructure.CertificateManagement;
 
 public sealed class CertificateManager : CertificateManagerBase
 {

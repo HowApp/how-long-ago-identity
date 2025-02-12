@@ -254,8 +254,11 @@ internal static class HostingExtensions
 
     public static WebApplicationBuilder ConfigureGrpcServices(this WebApplicationBuilder builder)
     {
+        var certConfig = new CertificateConfiguration();
+        builder.Configuration.Bind(nameof(CertificateConfiguration), certConfig);
+
         var certificateManager = CertificateManager.GetInstance();
-        certificateManager.SetUpManagerConfig(builder.Configuration);
+        certificateManager.SetUpManagerConfig(certConfig);
 
         builder.Services.AddGrpc(o =>
         {
@@ -300,8 +303,6 @@ internal static class HostingExtensions
             o.AwaitApplicationStarted = true;
         });
 
-        builder.Services.RegisterJobs();
-        
         builder.Services.AddTransient<AppJobScheduler>();
 
         return builder;
@@ -395,13 +396,6 @@ internal static class HostingExtensions
     {
         services.Configure<AdminCredentials>(configuration.GetSection("AdminCredentials"));
         
-        return services;
-    }
-
-    private static IServiceCollection RegisterJobs(this IServiceCollection services)
-    {
-        // services.AddTransient<TestJob>();
-
         return services;
     }
 
