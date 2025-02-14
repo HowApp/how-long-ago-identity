@@ -284,7 +284,7 @@ internal static class HostingExtensions
             return handler;
         });
 
-        builder.Services.AddTransient<IUserAccountGrpcService, UserServiceAccountGrpcService>();
+        builder.Services.AddTransient<IUserAccountGrpcService, UserAccountGrpcService>();
 
         return builder;
     }

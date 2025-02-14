@@ -2,15 +2,15 @@ namespace HowIdentity.Services.GrpcCommunication;
 
 using HowCommon.Infrastructure.Helpers;
 
-public class UserServiceAccountGrpcService : IUserAccountGrpcService
+public class UserAccountGrpcService : IUserAccountGrpcService
 {
-    private readonly ILogger<UserServiceAccountGrpcService> _logger;
+    private readonly ILogger<UserAccountGrpcService> _logger;
     private readonly UserAccount.UserAccountClient _client;
     private readonly UserIdHelper _helper;
 
-    public UserServiceAccountGrpcService(
+    public UserAccountGrpcService(
         UserAccount.UserAccountClient client,
-        ILogger<UserServiceAccountGrpcService> logger)
+        ILogger<UserAccountGrpcService> logger)
     {
         _client = client;
         _logger = logger;
