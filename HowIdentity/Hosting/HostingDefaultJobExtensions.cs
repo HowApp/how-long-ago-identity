@@ -10,12 +10,12 @@ public static class HostingDefaultJobExtensions
     {
         var scheduler = app.Services.GetRequiredService<AppJobScheduler>();
 
-        var job = JobBuilder.Create<UpdateUserMicroservicesJob>()
+        var microservicesJob = JobBuilder.Create<UpdateUserMicroservicesJob>()
             .WithIdentity(UpdateUserMicroservicesJob.JobKey)
             .Build();
             
         // Trigger the job to run now, and then every 8 hours
-        var trigger = TriggerBuilder.Create()
+        var microservicesTrigger = TriggerBuilder.Create()
             .WithIdentity(UpdateUserMicroservicesJob.TriggerKey)
             .StartNow()
             .WithSimpleSchedule(x => x
@@ -23,6 +23,21 @@ public static class HostingDefaultJobExtensions
                 .RepeatForever())
             .Build();
 
-        await scheduler.ScheduleJob(job, trigger);
+        await scheduler.ScheduleJob(microservicesJob, microservicesTrigger);
+        
+        var certificateJob = JobBuilder.Create<EnsureCertificateUpToDate>()
+            .WithIdentity(EnsureCertificateUpToDate.JobKey)
+            .Build();
+            
+        // Trigger the job to run after 20 minutes from app start, and then every 8 hours
+        var certificateTrigger = TriggerBuilder.Create()
+            .WithIdentity(EnsureCertificateUpToDate.TriggerKey)
+            .StartAt(DateTime.UtcNow.AddMinutes(20))
+            .WithSimpleSchedule(x => x
+                .WithIntervalInHours(144)
+                .RepeatForever())
+            .Build();
+
+        await scheduler.ScheduleJob(certificateJob, certificateTrigger);
     }
 }
