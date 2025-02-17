@@ -21,12 +21,12 @@ public class UpdateUserMicroservicesJob : IJob
     
     private readonly ILogger<UpdateUserMicroservicesJob> _logger;
     private readonly DapperContext _context;
-    private readonly UserServiceAccountProducer _producer;
+    private readonly UserAccountProducer _producer;
 
     public UpdateUserMicroservicesJob(
         ILogger<UpdateUserMicroservicesJob> logger,
         DapperContext context,
-        UserServiceAccountProducer producer)
+        UserAccountProducer producer)
     {
         _logger = logger;
         _context = context;

@@ -14,7 +14,7 @@ using HowCommon.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Services.GrpcCommunication;
+using Services.UserAccount;
 
 [SecurityHeaders]
 [AllowAnonymous]
@@ -23,7 +23,7 @@ public class Index : PageModel
     private readonly UserManager<HowUser> _userManager;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly ILogger<Index> _logger;
-    private readonly IUserAccountGrpcService _grpcClient;
+    private readonly IUserAccountService _userAccount;
 
     [BindProperty]
     public InputModel Input { get; set; } = default!;
@@ -32,12 +32,12 @@ public class Index : PageModel
         IIdentityServerInteractionService interaction,
         UserManager<HowUser> userManager,
         ILogger<Index> logger, 
-        IUserAccountGrpcService grpcClient)
+        IUserAccountService userAccount)
     {
         _interaction = interaction;
         _userManager = userManager;
         _logger = logger;
-        _grpcClient = grpcClient;
+        _userAccount = userAccount;
     }
 
     public IActionResult OnGet(string returnUrl)
@@ -113,6 +113,11 @@ public class Index : PageModel
                     {
                         MicroService = MicroServicesEnum.IdentityServer,
                         ConfirmExisting = true
+                    },
+                    new UserMicroservices
+                    {
+                        MicroService = MicroServicesEnum.MainApi,
+                        ConfirmExisting = false
                     }
                 ]
             };
@@ -141,8 +146,7 @@ public class Index : PageModel
             }
 
             // send event ro create record on main api
-            // await _producer.PublishUserRegistrationMessage(user.Id);
-            await _grpcClient.SendRegisterUserRequest(user.Id);
+            await _userAccount.SendRegisterUserRequest(user.Id);
 
             // issue authentication cookie with subject ID and username
             var isuser = new IdentityServerUser(user.Id.ToString())

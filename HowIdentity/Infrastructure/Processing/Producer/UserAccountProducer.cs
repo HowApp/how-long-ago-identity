@@ -4,15 +4,15 @@ using HowCommon.Infrastructure.Helpers;
 using HowCommon.MassTransitContract;
 using MassTransit;
 
-public class UserServiceAccountProducer
+public class UserAccountProducer
 {
-    private readonly ILogger<UserServiceAccountProducer> _logger;
+    private readonly ILogger<UserAccountProducer> _logger;
     private readonly IPublishEndpoint _publishEndpoint;
     private readonly UserIdHelper _helper;
 
-    public UserServiceAccountProducer(
+    public UserAccountProducer(
         IPublishEndpoint publishEndpoint,
-        ILogger<UserServiceAccountProducer> logger)
+        ILogger<UserAccountProducer> logger)
     {
         _publishEndpoint = publishEndpoint;
         _logger = logger;

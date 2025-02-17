@@ -14,6 +14,7 @@ using Duende.IdentityServer.EntityFramework.Mappers;
 using HowCommon.Configurations;
 using IdentityModel;
 using Infrastructure.CertificateManagement;
+using Infrastructure.GrpcCommunication.Client;
 using Infrastructure.Processing.Consumer;
 using Infrastructure.Processing.Producer;
 using Infrastructure.Scheduler;
@@ -23,9 +24,9 @@ using Microsoft.IdentityModel.Tokens;
 using Quartz;
 using Services;
 using Services.CurrentUser;
-using Services.GrpcCommunication;
 using Services.SuperAdmin;
 using Services.TargetUser;
+using Services.UserAccount;
 
 internal static class HostingExtensions
 {
@@ -192,10 +193,10 @@ internal static class HostingExtensions
     {
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? 
                                throw new ApplicationException("Database Connection string is null!");
-        
+
         builder.Services.AddSingleton<DapperContext>(o => 
             new DapperContext(connectionString));
-        
+
         return builder;
     }
     
@@ -204,9 +205,10 @@ internal static class HostingExtensions
         builder.Services.AddTransient<ISuperAdminUserService, SuperAdminUserService>();
         builder.Services.AddTransient<ICurrentUserService, CurrentUserService>();
         builder.Services.AddTransient<ITargetUserService, TargetUserService>();
+        builder.Services.AddTransient<IUserAccountService, UserAccountService>();
 
         // masstransit services
-        builder.Services.AddTransient<UserServiceAccountProducer>();
+        builder.Services.AddTransient<UserAccountProducer>();
 
         return builder;
     }
@@ -284,7 +286,7 @@ internal static class HostingExtensions
             return handler;
         });
 
-        builder.Services.AddTransient<IUserAccountGrpcService, UserAccountGrpcService>();
+        builder.Services.AddTransient<IUserAccountGrpcClient, UserAccountGrpcClient>();
 
         return builder;
     }

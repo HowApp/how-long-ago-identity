@@ -9,11 +9,11 @@ using Data;
 using Duende.IdentityServer.Services;
 using Entity;
 using HowCommon.Extensions;
-using Infrastructure.Processing.Producer;
 using Microsoft.Extensions.Options;
 using Npgsql;
 using Pages.SuperAdmin.AppUsers;
 using TargetUser;
+using UserAccount;
 
 public class SuperAdminUserService : ISuperAdminUserService
 {
@@ -22,7 +22,7 @@ public class SuperAdminUserService : ISuperAdminUserService
     private readonly ISessionManagementService _sessionManagementService;
     private readonly ITargetUserService _targetUserService;
     private readonly IOptions<AdminCredentials> _adminCredentials;
-    private readonly UserServiceAccountProducer _producer;
+    private readonly IUserAccountService _userAccountService;
 
     public SuperAdminUserService(
         ILogger<SuperAdminUserService> logger,
@@ -30,14 +30,14 @@ public class SuperAdminUserService : ISuperAdminUserService
         ISessionManagementService sessionManagementService,
         ITargetUserService targetUserService,
         IOptions<AdminCredentials> adminCredentials,
-        UserServiceAccountProducer producer)
+        IUserAccountService userAccountService)
     {
         _logger = logger;
         _dapper = dapper;
         _sessionManagementService = sessionManagementService;
         _targetUserService = targetUserService;
         _adminCredentials = adminCredentials;
-        _producer = producer;
+        _userAccountService = userAccountService;
     }
 
     public async Task<ResultGeneric<List<AppUserModel>>>  GetUsers()
@@ -149,7 +149,7 @@ LIMIT 1;
                     RevokeConsents = true
                 });
 
-                await _producer.PublishUserSuspendMessage(userId, true);
+                await _userAccountService.SendSuspendUserRequest(userId, true);
             }
 
             return result ? 
@@ -178,7 +178,7 @@ LIMIT 1;
 
             if (result)
             {
-                await _producer.PublishUserSuspendMessage(userId, false);
+                await _userAccountService.SendSuspendUserRequest(userId, false);
             }
             
             return result ? 
@@ -319,7 +319,7 @@ RETURNING *;
                 RevokeConsents = true
             });
 
-            await _producer.PublishUserDeletedMessage(userId);
+            await _userAccountService.SendDeleteUserRequest(userId);
 
             return ResultDefault.Success();
         }

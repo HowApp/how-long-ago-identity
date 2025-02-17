@@ -1,6 +1,6 @@
-namespace HowIdentity.Services.GrpcCommunication;
+namespace HowIdentity.Services.UserAccount;
 
-public interface IUserAccountGrpcService
+public interface IUserAccountService
 {
     Task SendRegisterUserRequest(int userId);
     Task SendDeleteUserRequest(int userId);

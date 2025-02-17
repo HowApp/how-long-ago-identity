@@ -1,27 +1,27 @@
-namespace HowIdentity.Services.GrpcCommunication;
+namespace HowIdentity.Infrastructure.GrpcCommunication.Client;
 
 using HowCommon.Infrastructure.Helpers;
 
-public class UserAccountGrpcService : IUserAccountGrpcService
+public class UserAccountGrpcClient : IUserAccountGrpcClient
 {
-    private readonly ILogger<UserAccountGrpcService> _logger;
+    private readonly ILogger<UserAccountGrpcClient> _logger;
     private readonly UserAccount.UserAccountClient _client;
     private readonly UserIdHelper _helper;
 
-    public UserAccountGrpcService(
+    public UserAccountGrpcClient(
         UserAccount.UserAccountClient client,
-        ILogger<UserAccountGrpcService> logger)
+        ILogger<UserAccountGrpcClient> logger)
     {
         _client = client;
         _logger = logger;
         _helper = new UserIdHelper((sender, message) => logger.LogError(message));
     }
 
-    public async Task SendRegisterUserRequest(int userId)
+    public async Task<GrpcResult> SendRegisterUserRequest(int userId)
     {
         if (!_helper.ValidateUserId(userId))
         {
-            return;
+            return await Task.FromResult(GrpcResult.ValidationError);
         }
 
         var replay = await _client.UserRegisterAsync(new RegisterUserRequest
@@ -32,15 +32,16 @@ public class UserAccountGrpcService : IUserAccountGrpcService
         if (!replay.Success)
         {
             _logger.LogError($"Failed to register user: {userId}");
-            // TODO: schedule job to send later
         }
+
+        return replay.Success ? GrpcResult.Success : GrpcResult.Error;
     }
 
-    public async Task SendDeleteUserRequest(int userId)
+    public async Task<GrpcResult> SendDeleteUserRequest(int userId)
     {
         if (!_helper.ValidateUserId(userId))
         {
-            return;
+            return await Task.FromResult(GrpcResult.ValidationError);
         }
         
         var replay = await _client.UserDeleteAsync(new DeleteUserRequest
@@ -51,15 +52,16 @@ public class UserAccountGrpcService : IUserAccountGrpcService
         if (!replay.Success)
         {
             _logger.LogError($"Failed to delete user: {userId}");
-            // TODO: schedule job to send later
         }
+        
+        return replay.Success ? GrpcResult.Success : GrpcResult.Error;
     }
 
-    public async Task SendSuspendUserRequest(int userId, bool state)
+    public async Task<GrpcResult> SendSuspendUserRequest(int userId, bool state)
     {
         if (!_helper.ValidateUserId(userId))
         {
-            return;
+            return await Task.FromResult(GrpcResult.ValidationError);
         }
         
         var replay = await _client.UserSuspendAsync(new SuspendUser()
@@ -71,7 +73,8 @@ public class UserAccountGrpcService : IUserAccountGrpcService
         if (!replay.Success)
         {
             _logger.LogError($"Failed to suspend user: {userId}");
-            // TODO: schedule job to send later
         }
+        
+        return replay.Success ? GrpcResult.Success : GrpcResult.Error;
     }
 }
