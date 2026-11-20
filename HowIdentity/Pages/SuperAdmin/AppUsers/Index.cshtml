@@ -16,18 +16,33 @@
                     {
                         <div class="row">
                             <div class="col">
-                                <form class="form">
+                                <form method="get" class="form">
                                     <div class="form-group row">
                                         <label asp-for="@Model.EmailFilter" class="col-2 col-form-label">Email:</label>
                                         <input type="search" asp-for="@Model.EmailFilter" class="col form-control" autofocus/>
+                                        <input type="hidden" name="PageNumber" value="1" />
+                                        <div class="col-auto">
+                                            <button type="submit" class="btn btn-primary">Filter</button>
+                                        </div>
                                     </div>
                                 </form>
                             </div>
-                            <div class="col-1 text-center">
-                                @if (Model.Users.Any())
+                            <div class="col-auto text-center">
+                                @if (Model.PageNumber > 1)
                                 {
-                                    <a class="btn btn-primary" asp-page="/ServerSideSessions/Index"
-                                       asp-route-DisplayEmailFilter="@Model.EmailFilter">
+                                    <a class="btn btn-secondary" asp-page="/SuperAdmin/AppUsers/Index"
+                                       asp-route-EmailFilter="@Model.EmailFilter"
+                                       asp-route-PageNumber="@(Model.PageNumber - 1)"
+                                       asp-route-PageSize="@Model.PageSize">
+                                        Prev
+                                    </a>
+                                }
+                                @if (Model.Users.Count >= Model.PageSize)
+                                {
+                                    <a class="btn btn-primary" asp-page="/SuperAdmin/AppUsers/Index"
+                                       asp-route-EmailFilter="@Model.EmailFilter"
+                                       asp-route-PageNumber="@(Model.PageNumber + 1)"
+                                       asp-route-PageSize="@Model.PageSize">
                                         Next
                                     </a>
                                 }
@@ -38,7 +53,7 @@
                         {
                             <div class="text-center">
                                 <text>
-                                    Total Results: @Model.Users.Count,
+                                    Page: @Model.PageNumber | Showing Results: @Model.Users.Count
                                 </text>
                             </div>
                         }

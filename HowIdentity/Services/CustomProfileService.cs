@@ -1,4 +1,4 @@
-﻿namespace HowIdentity.Services;
+namespace HowIdentity.Services;
 
 using System.Security.Claims;
 using Duende.IdentityServer.AspNetIdentity;
@@ -19,16 +19,18 @@ public class CustomProfileService : ProfileService<HowUser>
     protected override async Task GetProfileDataAsync(ProfileDataRequestContext context, HowUser user)
     {
         var principal = await GetUserClaimsAsync(user);
-        var id = (ClaimsIdentity)principal.Identity?? new ClaimsIdentity();
+        var id = (ClaimsIdentity)principal.Identity ?? new ClaimsIdentity();
 
-        if (user.UserRoles is not null)
-        {
-            var userRoles = user.UserRoles
-                .Select(r => r.Role.Name)
+        var roles = user.UserRoles is not null
+            ? user.UserRoles
+                .Select(r => r.Role?.Name)
                 .Where(r => !string.IsNullOrWhiteSpace(r))
-                .Distinct();
+                .Distinct()
+            : (await UserManager.GetRolesAsync(user)).Distinct();
 
-            foreach (var role in userRoles)
+        foreach (var role in roles)
+        {
+            if (!id.HasClaim(JwtClaimTypes.Role, role) && !id.HasClaim(ClaimTypes.Role, role))
             {
                 id.AddClaim(new Claim(JwtClaimTypes.Role, role));
             }

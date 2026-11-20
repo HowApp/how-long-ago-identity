@@ -78,19 +78,24 @@ public class Index : PageModel
             }
         }
 
+        if (!ModelState.IsValid)
+        {
+            return Page();
+        }
+
         try
         {
             var userNameExists = await _userManager.FindByNameAsync(Input.UserName);
             if (userNameExists != null)
             {
-                ModelState.AddModelError("Input.Username", "User with this username already exists.");
+                ModelState.AddModelError("Input.UserName", "User with this username already exists.");
                 return Page();
             }
         
             var userEmailExists = await _userManager.FindByEmailAsync(Input.Email);
             if (userEmailExists != null)
             {
-                ModelState.AddModelError("Input.Username", "User with this email already exists.");
+                ModelState.AddModelError("Input.Email", "User with this email already exists.");
                 return Page();
             }
         }

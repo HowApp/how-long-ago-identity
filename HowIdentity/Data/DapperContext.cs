@@ -2,22 +2,34 @@ namespace HowIdentity.Data;
 
 using Npgsql;
 
-public class DapperContext
+public class DapperContext : IDisposable, IAsyncDisposable
 {
-    private readonly string _connectionString;
+    private readonly NpgsqlDataSource _dataSource;
 
     public DapperContext(string connectionString)
     {
-        _connectionString = connectionString;
+        var dataSourceBuilder = new NpgsqlDataSourceBuilder(connectionString);
+        dataSourceBuilder.UseNodaTime();
+        _dataSource = dataSourceBuilder.Build();
     }
     
     public NpgsqlConnection InitConnection()
     {
-        var dataSourceBuilder = new NpgsqlDataSourceBuilder(_connectionString);
-        dataSourceBuilder.UseNodaTime();
-        var dataSource = dataSourceBuilder.Build();
-        
-        var connection = dataSource.OpenConnection();
-        return connection;
+        return _dataSource.OpenConnection();
+    }
+
+    public ValueTask<NpgsqlConnection> InitConnectionAsync(CancellationToken cancellationToken = default)
+    {
+        return _dataSource.OpenConnectionAsync(cancellationToken);
+    }
+
+    public void Dispose()
+    {
+        _dataSource.Dispose();
+    }
+
+    public ValueTask DisposeAsync()
+    {
+        return _dataSource.DisposeAsync();
     }
 }

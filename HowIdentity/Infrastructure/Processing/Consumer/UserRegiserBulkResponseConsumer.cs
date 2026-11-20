@@ -44,6 +44,7 @@ WHERE user_id = ANY (@UserIds) AND micro_service = {(int)MicroServicesEnum.MainA
         catch (Exception e)
         {
             _logger.LogError(e, e.Message);
+            throw;
         }
     }
 }

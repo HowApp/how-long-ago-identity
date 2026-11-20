@@ -21,6 +21,7 @@ public class Index : PageModel
     public bool ForceSessionRemoving { get; set; }
     
     public AppUserModel AppUser { get; set; } = default!;
+    [TempData]
     public string ErrorsString { get; set; } = default!;
     public List<ErrorResult> Errors { get; set; } = new();
     
@@ -42,12 +43,14 @@ public class Index : PageModel
         if (userFromDb.IsSuccess)
         {
             AppUser = userFromDb.Value();
+            var roleIds = AppUser.RoleIds ?? [];
             RoleOptions = IdentityRoleConstant.Role.RoleList()
+                .Where(r => r.Id != IdentityRoleConstant.Role.SuperAdmin.Id)
                 .Select(r => new RoleModel
                 {
                     Id = r.Id,
                     Name = r.Name,
-                    Apply = AppUser.RoleIds.Contains(r.Id)
+                    Apply = roleIds.Contains(r.Id)
                 })
                 .ToArray();
 
@@ -71,7 +74,8 @@ public class Index : PageModel
             Errors.AddRange(result.Errors);
         }
 
-        return RedirectToPage();
+        TempDataStore();
+        return base.RedirectToPage(new { id = UserId });
     }
     
     private void TempDataStore()

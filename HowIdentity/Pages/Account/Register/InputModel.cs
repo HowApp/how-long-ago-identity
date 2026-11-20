@@ -13,6 +13,8 @@ public class InputModel
     [Required]
     public string Password { get; set; }
 
+    [Required]
+    [EmailAddress]
     public string Email { get; set; }
 
     public string ReturnUrl { get; set; }

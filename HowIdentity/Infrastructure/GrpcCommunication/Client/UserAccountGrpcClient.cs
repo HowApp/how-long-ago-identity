@@ -24,17 +24,25 @@ public class UserAccountGrpcClient : IUserAccountGrpcClient
             return await Task.FromResult(GrpcResult.ValidationError);
         }
 
-        var replay = await _client.UserRegisterAsync(new RegisterUserRequest
+        try
         {
-            UserId = userId
-        });
+            var replay = await _client.UserRegisterAsync(new RegisterUserRequest
+            {
+                UserId = userId
+            });
 
-        if (!replay.Success)
-        {
-            _logger.LogError($"Failed to register user: {userId}");
+            if (!replay.Success)
+            {
+                _logger.LogError($"Failed to register user: {userId}");
+            }
+
+            return replay.Success ? GrpcResult.Success : GrpcResult.Error;
         }
-
-        return replay.Success ? GrpcResult.Success : GrpcResult.Error;
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"gRPC call failed when registering user: {userId}");
+            return GrpcResult.Error;
+        }
     }
 
     public async Task<GrpcResult> SendDeleteUserRequest(int userId)
@@ -44,17 +52,25 @@ public class UserAccountGrpcClient : IUserAccountGrpcClient
             return await Task.FromResult(GrpcResult.ValidationError);
         }
         
-        var replay = await _client.UserDeleteAsync(new DeleteUserRequest
+        try
         {
-            UserId = userId
-        });
-        
-        if (!replay.Success)
-        {
-            _logger.LogError($"Failed to delete user: {userId}");
+            var replay = await _client.UserDeleteAsync(new DeleteUserRequest
+            {
+                UserId = userId
+            });
+            
+            if (!replay.Success)
+            {
+                _logger.LogError($"Failed to delete user: {userId}");
+            }
+            
+            return replay.Success ? GrpcResult.Success : GrpcResult.Error;
         }
-        
-        return replay.Success ? GrpcResult.Success : GrpcResult.Error;
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"gRPC call failed when deleting user: {userId}");
+            return GrpcResult.Error;
+        }
     }
 
     public async Task<GrpcResult> SendSuspendUserRequest(int userId, bool state)
@@ -64,17 +80,25 @@ public class UserAccountGrpcClient : IUserAccountGrpcClient
             return await Task.FromResult(GrpcResult.ValidationError);
         }
         
-        var replay = await _client.UserSuspendAsync(new SuspendUser()
+        try
         {
-            UserId = userId,
-            State = state
-        });
-        
-        if (!replay.Success)
-        {
-            _logger.LogError($"Failed to suspend user: {userId}");
+            var replay = await _client.UserSuspendAsync(new SuspendUser()
+            {
+                UserId = userId,
+                State = state
+            });
+            
+            if (!replay.Success)
+            {
+                _logger.LogError($"Failed to suspend user: {userId}");
+            }
+            
+            return replay.Success ? GrpcResult.Success : GrpcResult.Error;
         }
-        
-        return replay.Success ? GrpcResult.Success : GrpcResult.Error;
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, $"gRPC call failed when suspending user: {userId}");
+            return GrpcResult.Error;
+        }
     }
 }

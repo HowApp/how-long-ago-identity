@@ -40,10 +40,13 @@ public class SuperAdminUserService : ISuperAdminUserService
         _userAccountService = userAccountService;
     }
 
-    public async Task<ResultGeneric<List<AppUserModel>>>  GetUsers()
+    public async Task<ResultGeneric<List<AppUserModel>>> GetUsers(string emailFilter = null, int page = 1, int size = 20)
     {
         try
         {
+            page = page < 1 ? 1 : page;
+            size = size < 1 ? 20 : size;
+
             var query = $@"
 SELECT 
     {nameof(HowUser.Id).ToSnake()} AS {nameof(AppUserModel.Id)},
@@ -62,10 +65,20 @@ LEFT JOIN (
     LEFT JOIN {nameof(ApplicationDbContext.Roles).ToSnake()} r on r.{nameof(HowRole.Id).ToSnake()} = ur.{nameof(HowUserRole.RoleId).ToSnake()}
     GROUP BY ur.{nameof(HowUserRole.UserId).ToSnake()}
 ) user_roles ON u.{nameof(HowUser.Id).ToSnake()} = user_roles.user_id
-WHERE u.{nameof(HowUser.Email).ToSnake()} NOT ILIKE '{_adminCredentials.Value.Email}'
+WHERE u.{nameof(HowUser.Email).ToSnake()} NOT ILIKE @AdminEmail
+    AND (@EmailFilter IS NULL OR u.{nameof(HowUser.Email).ToSnake()} ILIKE '%' || @EmailFilter || '%')
+ORDER BY u.{nameof(HowUser.Id).ToSnake()} ASC
+OFFSET @Offset
+LIMIT @Limit;
 ";
             await using var connection = _dapper.InitConnection();
-            var users = await connection.QueryAsync<AppUserModel>(query);
+            var users = await connection.QueryAsync<AppUserModel>(query, new
+            {
+                AdminEmail = _adminCredentials.Value.Email ?? string.Empty,
+                EmailFilter = string.IsNullOrWhiteSpace(emailFilter) ? null : emailFilter.Trim(),
+                Offset = (page - 1) * size,
+                Limit = size
+            });
             
             return ResultGeneric<List<AppUserModel>>.Success(users.ToList());
         }
@@ -100,14 +113,14 @@ LEFT JOIN (
 ) user_roles ON u.{nameof(HowUser.Id).ToSnake()} = user_roles.user_id
 WHERE u.{nameof(HowUser.Id).ToSnake()} = @Id
     AND {nameof(HowUser.IsDeleted).ToSnake()} = FALSE
-    AND u.{nameof(HowUser.Email).ToSnake()} NOT ILIKE '{_adminCredentials.Value.Email}'
+    AND u.{nameof(HowUser.Email).ToSnake()} NOT ILIKE @AdminEmail
 LIMIT 1;
 ";
             
             await using var connection = _dapper.InitConnection();
             var quryResult = await connection.QueryAsync<AppUserModel>(
                 query,
-                new { Id = userId });
+                new { Id = userId, AdminEmail = _adminCredentials.Value.Email ?? string.Empty });
             
             var user = quryResult.FirstOrDefault();
 
@@ -133,7 +146,7 @@ LIMIT 1;
             
             if (!await _targetUserService.AccessToTargetUser(targetId: userId, connection: connection, protectSuperAdmin: true, preventSelfAction: true))
             {
-                return ResultDefault.Fatality(nameof(DeleteUser), "User can not be suspended!");
+                return ResultDefault.Fatality(nameof(SuspendUser), "User can not be suspended!");
             }
             
             var result = await UpdateSuspendStatus(userId, true, connection);
@@ -171,7 +184,7 @@ LIMIT 1;
             
             if (!await _targetUserService.AccessToTargetUser(targetId: userId, connection: connection, protectSuperAdmin: true, preventSelfAction: true))
             {
-                return ResultDefault.Fatality(nameof(DeleteUser), "User can not be re-suspended!");
+                return ResultDefault.Fatality(nameof(ReSuspendUser), "User can not be re-suspended!");
             }
             
             var result = await UpdateSuspendStatus(userId, false, connection);
@@ -203,12 +216,12 @@ LIMIT 1;
 
             await using var connection = _dapper.InitConnection();
 
-            if (!await _targetUserService.AccessToTargetUser(targetId: userId, connection: connection, protectSuperAdmin: false, preventSelfAction: false))
+            if (!await _targetUserService.AccessToTargetUser(targetId: userId, connection: connection, protectSuperAdmin: true, preventSelfAction: false))
             {
-                return ResultDefault.Fatality(nameof(DeleteUser), "User can not edit roles!");
+                return ResultDefault.Fatality(nameof(UpdateUserRoles), "User can not edit roles!");
             }
 
-            var roleToAdd = roles.Where(r => r.State).Select(r => r.RoleId).ToArray();
+            var roleToAdd = roles.Where(r => r.State && r.RoleId != IdentityRoleConstant.Role.SuperAdmin.Id).Select(r => r.RoleId).ToArray();
             var roleToDelete = roles.Where(r => !r.State && r.RoleId != IdentityRoleConstant.Role.SuperAdmin.Id).Select(r => r.RoleId).ToArray();
             var commandBuilder = new StringBuilder();
 
@@ -225,27 +238,28 @@ WHERE {nameof(HowUserRole.RoleId).ToSnake()} = ANY(@RoleIdToDelete)
 
             if (roleToAdd.Any())
             {
-                var sequence = string.Join(",\n", roleToAdd.Select(r => $"({userId}, {r})"));
-
                 var commandInsert = $@"
 INSERT INTO {nameof(ApplicationDbContext.UserRoles).ToSnake()} ({nameof(HowUserRole.UserId).ToSnake()}, {nameof(HowUserRole.RoleId).ToSnake()})
-VALUES 
-({nameof(sequence)}, {nameof(sequence)})
+SELECT @UserId, unnest(@RoleIdToAdd)
 ON CONFLICT ({nameof(HowUserRole.UserId).ToSnake()}, {nameof(HowUserRole.RoleId).ToSnake()})
 DO NOTHING;";
 
-                commandBuilder.Append(commandInsert.Replace($"({nameof(sequence)}, {nameof(sequence)})", sequence));
+                commandBuilder.Append(commandInsert);
             }
 
             var command = commandBuilder.ToString();
 
-            await connection.ExecuteAsync(
-                command, 
-                new
-                {
-                    UserId = userId,
-                    RoleIdToDelete = roleToDelete
-                });
+            if (!string.IsNullOrWhiteSpace(command))
+            {
+                await connection.ExecuteAsync(
+                    command, 
+                    new
+                    {
+                        UserId = userId,
+                        RoleIdToDelete = roleToDelete,
+                        RoleIdToAdd = roleToAdd
+                    });
+            }
 
             if (forceSessionRemoving)
             {

@@ -103,20 +103,21 @@ WHERE
 ORDER BY u.{nameof(HowUser.Id).ToSnake()};
 ";
 
-    private readonly string _command = $@"
+    private readonly string _command = @"
 INSERT INTO user_microservices (user_id, micro_service, confirm_existing) 
-VALUES ({nameof(_command)})
+SELECT unnest(@UserIds), @Target, @ConfirmExisting
 ON CONFLICT (user_id, micro_service) DO NOTHING;
 ";
 
     private async Task CommandExecute(int[] userIds, MicroServicesEnum target, NpgsqlConnection connection)
     {
-        var boolColl = target == MicroServicesEnum.IdentityServer ? "TRUE" : "FALSE";
-        var sequence = string.Join(",\n", userIds.Select(x => $"({x}, {(int)target}, {boolColl})"));
-                
-        var command = _command.Replace($"({nameof(_command)})", sequence);
-                
-        await connection.ExecuteAsync(command);
+        var confirmExisting = target == MicroServicesEnum.IdentityServer;
+        await connection.ExecuteAsync(_command, new
+        {
+            UserIds = userIds,
+            Target = (int)target,
+            ConfirmExisting = confirmExisting
+        });
     }
 }
 

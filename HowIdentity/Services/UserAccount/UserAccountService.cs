@@ -1,5 +1,8 @@
 namespace HowIdentity.Services.UserAccount;
 
+using Dapper;
+using Data;
+using HowCommon.Enums;
 using Infrastructure.GrpcCommunication;
 using Infrastructure.GrpcCommunication.Client;
 using Infrastructure.Processing.Producer;
@@ -8,11 +11,16 @@ public class UserAccountService : IUserAccountService
 {
     private readonly IUserAccountGrpcClient _userAccountGrpcClient;
     private readonly UserAccountProducer _userAccountProducer;
+    private readonly DapperContext _dapperContext;
 
-    public UserAccountService(IUserAccountGrpcClient userAccountGrpcClient, UserAccountProducer userAccountProducer)
+    public UserAccountService(
+        IUserAccountGrpcClient userAccountGrpcClient,
+        UserAccountProducer userAccountProducer,
+        DapperContext dapperContext)
     {
         _userAccountGrpcClient = userAccountGrpcClient;
         _userAccountProducer = userAccountProducer;
+        _dapperContext = dapperContext;
     }
 
     public async Task SendRegisterUserRequest(int userId)
@@ -24,6 +32,13 @@ public class UserAccountService : IUserAccountService
                 await _userAccountProducer.PublishUserRegistrationMessage(userId);
                 break;
             case GrpcResult.Success:
+                await using (var connection = _dapperContext.InitConnection())
+                {
+                    await connection.ExecuteAsync(
+                        "UPDATE user_microservices SET confirm_existing = TRUE WHERE user_id = @UserId AND micro_service = @MicroService;",
+                        new { UserId = userId, MicroService = (int)MicroServicesEnum.MainApi });
+                }
+                return;
             case GrpcResult.ValidationError:
                 return;
             default:

@@ -20,19 +20,23 @@ public class Index : PageModel
         _superAdminUserService = superAdminUserService;
     }
 
-    [BindProperty(SupportsGet = true)] public string EmailFilter  { get; set; }
+    [BindProperty(SupportsGet = true)] public string EmailFilter { get; set; }
+    [BindProperty(SupportsGet = true)] public int PageNumber { get; set; } = 1;
+    [BindProperty(SupportsGet = true)] public int PageSize { get; set; } = 20;
     [BindProperty] public int UserId { get; set; }
     [BindProperty] public bool IsSuspend { get; set; }
     
-    // TODO add pagination
     public async Task OnGet()
     {
+        if (PageNumber < 1) PageNumber = 1;
+        if (PageSize < 1) PageSize = 20;
+
         if (!string.IsNullOrEmpty(ErrorsString))
         {
             Errors = JsonSerializer.Deserialize<List<ErrorResult>>(ErrorsString);
         }
 
-        var userFromDb = await _superAdminUserService.GetUsers();
+        var userFromDb = await _superAdminUserService.GetUsers(EmailFilter, PageNumber, PageSize);
 
         if (userFromDb.IsSuccess)
         {
