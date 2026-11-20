@@ -310,10 +310,13 @@ internal static class HostingExtensions
         return builder;
     }
 
-    private static void InitializeDatabase(IApplicationBuilder app)
+    private static void InitializeDatabase(WebApplication app)
     {
-        using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>()!.CreateScope())
+        using (var serviceScope = app.Services.GetService<IServiceScopeFactory>()!.CreateScope())
         {
+            var appDbContext = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            appDbContext.Database.Migrate();
+
             var persistentContext = serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
             persistentContext.Database.Migrate();
             
@@ -392,6 +395,8 @@ internal static class HostingExtensions
 
             context.SaveChanges();
         }
+
+        Data.Seeds.SeedData.EnsureSeedAdmin(app);
     }
 
     private static IServiceCollection ConfigureConfigurations(this IServiceCollection services, IConfiguration configuration)
