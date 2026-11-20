@@ -2,21 +2,22 @@
 @model HowIdentity.Pages.Account.Login.Index
 
 <div class="login-page">
-    <div class="lead">
-        <h1>Login</h1>
-        <p>Choose how to login</p>
+    <div class="text-center mb-4">
+        <h1 class="h3 font-weight-bold">Welcome back</h1>
+        <p class="text-muted">Sign in to your How Long Ago account to continue</p>
     </div>
 
-    <partial name="_ValidationSummary"/>
+    <div class="auth-card-wrapper">
+        <partial name="_ValidationSummary"/>
+    </div>
 
-    <div class="row">
-
+    <div class="row justify-content-center">
         @if (Model.View.EnableLocalLogin)
         {
-            <div class="col-sm-6">
+            <div class="col-md-6 col-lg-5 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <h2>Local Account</h2>
+                        <h2>Sign In with Account</h2>
                     </div>
 
                     <div class="card-body">
@@ -24,12 +25,12 @@
                             <input type="hidden" asp-for="Input.ReturnUrl"/>
 
                             <div class="form-group">
-                                <label asp-for="Input.UserName"></label>
-                                <input class="form-control" placeholder="Username" asp-for="Input.UserName" autofocus>
+                                <label asp-for="Input.UserName" class="font-weight-bold small text-uppercase text-muted">Username</label>
+                                <input class="form-control" placeholder="Enter your username" asp-for="Input.UserName" autofocus>
                             </div>
                             <div class="form-group">
-                                <label asp-for="Input.Password"></label>
-                                <input type="password" class="form-control" placeholder="Password" asp-for="Input.Password" autocomplete="off">
+                                <label asp-for="Input.Password" class="font-weight-bold small text-uppercase text-muted">Password</label>
+                                <input type="password" class="form-control" placeholder="Enter your password" asp-for="Input.Password" autocomplete="off">
                             </div>
 
                             @if (Model.View.AllowRememberLogin)
@@ -38,42 +39,45 @@
                                     <div class="form-check">
                                         <input class="form-check-input" asp-for="Input.RememberLogin">
                                         <label class="form-check-label" asp-for="Input.RememberLogin">
-                                            Remember My Login
+                                            Keep me signed in
                                         </label>
                                     </div>
                                 </div>
                             }
 
-                            <button class="btn btn-primary" name="Input.Button" value="login">Login</button>
-                            <button class="btn btn-secondary" name="Input.Button" value="cancel">Cancel</button>
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+                                <button class="btn btn-primary px-4" name="Input.Button" value="login">Sign In</button>
+                                <button class="btn btn-outline-secondary" name="Input.Button" value="cancel">Cancel</button>
+                            </div>
                         </form>
                     </div>
-                    <a class="btn btn-secondary" asp-page="/Account/Register/Index" asp-route-returnUrl="@Model.Input.ReturnUrl"> Create Account</a>
+                    <div class="card-footer bg-light text-center py-3">
+                        <span class="text-muted small">Don't have an account?</span>
+                        <a class="font-weight-bold ml-1" asp-page="/Account/Register/Index" asp-route-returnUrl="@Model.Input.ReturnUrl">Create Account</a>
+                    </div>
                 </div>
             </div>
         }
 
         @if (Model.View.VisibleExternalProviders.Any())
         {
-            <div class="col-sm-6">
+            <div class="col-md-6 col-lg-4 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <h2>External Account</h2>
+                        <h2>External Providers</h2>
                     </div>
                     <div class="card-body">
-                        <ul class="list-inline">
+                        <div class="d-flex flex-column">
                             @foreach (var provider in Model.View.VisibleExternalProviders)
                             {
-                                <li class="list-inline-item">
-                                    <a class="btn btn-secondary"
-                                       asp-page="/ExternalLogin/Challenge"
-                                       asp-route-scheme="@provider.AuthenticationScheme"
-                                       asp-route-returnUrl="@Model.Input.ReturnUrl">
-                                        @provider.DisplayName
-                                    </a>
-                                </li>
+                                <a class="btn btn-outline-dark mb-2"
+                                   asp-page="/ExternalLogin/Challenge"
+                                   asp-route-scheme="@provider.AuthenticationScheme"
+                                   asp-route-returnUrl="@Model.Input.ReturnUrl">
+                                    Continue with @provider.DisplayName
+                                </a>
                             }
-                        </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -81,9 +85,11 @@
 
         @if (!Model.View.EnableLocalLogin && !Model.View.VisibleExternalProviders.Any())
         {
-            <div class="alert alert-warning">
-                <strong>Invalid login request</strong>
-                There are no login schemes configured for this request.
+            <div class="col-md-6">
+                <div class="alert alert-warning">
+                    <strong>Invalid login request</strong>
+                    There are no login schemes configured for this request.
+                </div>
             </div>
         }
     </div>
