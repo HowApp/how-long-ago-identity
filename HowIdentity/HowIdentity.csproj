@@ -21,9 +21,11 @@
         <PackageReference Include="HowCommon" Version="1.0.9" />
         <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.4" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="8.0.3"/>
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.2" />
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="8.0.2" />
-        <PackageReference Include="Npgsql.NodaTime" Version="8.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="8.0.1" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.11" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="8.0.11" />
+        <PackageReference Include="Npgsql.NodaTime" Version="8.0.9" />
+        <PackageReference Include="System.Text.Json" Version="8.0.6" />
         <PackageReference Include="Quartz" Version="3.13.1" />
         <PackageReference Include="Quartz.Extensions.DependencyInjection" Version="3.13.1" />
         <PackageReference Include="Quartz.Extensions.Hosting" Version="3.13.1" />
